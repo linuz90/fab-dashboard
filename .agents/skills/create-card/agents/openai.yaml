@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Card"
+  short_description: "Add connector-backed dashboard cards"
+  default_prompt: "Use $create-card to add a connector-backed dashboard card."

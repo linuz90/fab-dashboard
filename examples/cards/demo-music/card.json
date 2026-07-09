@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-music",
+  "connectors": ["demo-music"],
+  "keywords": ["music", "media", "tracks"],
+  "freshness": { "connector": "demo-music", "label": "sample" },
+  "visual": { "icon": "music", "accent": "pink" },
+  "blocks": [
+    { "type": "list", "variant": "media", "path": "demo-music.tracks", "titlePath": "title", "textPath": "artist", "metaPath": "status", "imagePath": "art", "fallbackIcon": "music", "progressPath": "progressPct", "limit": 5 },
+    { "type": "text", "path": "demo-music.repeat", "variant": "muted" }
+  ]
+}

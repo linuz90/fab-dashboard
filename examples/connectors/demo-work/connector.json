@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-work",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "mrr": "$145.8k",
+    "delta": "+2.4%",
+    "arr": "$1.75m",
+    "customers": "5,482",
+    "arpa": "$26.60",
+    "history": [138, 139, 140, 141, 140, 142, 143, 144, 145.8],
+    "movements": [
+      { "title": "Pro plan", "meta": "+$2.1k", "text": "Healthy self-serve signups.", "tone": "success" },
+      { "title": "Team expansion", "meta": "+$4.2k", "text": "Plan upgrades and seat expansion.", "tone": "success" },
+      { "title": "Contraction", "meta": "-$0.8k", "text": "Normal downgrade noise.", "tone": "danger" },
+      { "title": "Reactivation", "meta": "+$0.6k", "text": "Two old accounts returned.", "tone": "success" }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-portfolio",
+  "connectors": ["demo-portfolio"],
+  "keywords": ["portfolio", "finance", "allocation"],
+  "freshness": { "connector": "demo-portfolio", "label": "sample" },
+  "visual": { "icon": "wallet", "accent": "green" },
+  "blocks": [
+    { "type": "metric", "label": "Investments", "valuePath": "demo-portfolio.movement", "deltaPath": "demo-portfolio.delta", "sparklinePath": "demo-portfolio.history", "tone": "success" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Stocks", "valuePath": "demo-portfolio.stocks", "hint": "broad ETFs", "progressPath": "demo-portfolio.stocksPct" },
+        { "label": "Crypto", "valuePath": "demo-portfolio.crypto", "hint": "BTC-led", "progressPath": "demo-portfolio.cryptoPct" },
+        { "label": "Cash", "valuePath": "demo-portfolio.cash", "hint": "buffer", "progressPath": "demo-portfolio.cashPct" },
+        { "label": "Gold", "valuePath": "demo-portfolio.gold", "hint": "hedge", "progressPath": "demo-portfolio.goldPct" }
+      ]
+    }
+  ]
+}

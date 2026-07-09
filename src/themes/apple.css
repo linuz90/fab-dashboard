@@ -1,0 +1,72 @@
+/* Apple theme: apple.com light gray canvas, borderless white squircle cards
+   (corner-shape is Chrome 139+; other engines just render round corners),
+   SF system palette. --color-border stays as a hairline for the border-t
+   separators inside cards even though the card outline itself is gone. */
+:root[data-theme="apple"] {
+  --color-canvas: light-dark(#f5f5f7, #000000);
+  --color-card: light-dark(#ffffff, #1c1c1e);
+  --color-border: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+  --color-fg: light-dark(#1d1d1f, #f5f5f7);
+  --color-muted: light-dark(#6e6e73, #a1a1a6);
+  --color-faint: light-dark(#98989d, #636366);
+
+  --color-success: light-dark(#248a3d, #30d158);
+  --color-warning: light-dark(#c93400, #ff9f0a);
+  --color-danger: light-dark(#d70015, #ff453a);
+  --color-success-soft: light-dark(#eaf7ee, #12291a);
+  --color-warning-soft: light-dark(#fff3e8, #2c1c07);
+  --color-danger-soft: light-dark(#fdeced, #2c0d0d);
+
+  --color-accent: light-dark(#0071e3, #0a84ff);
+
+  /* iOS Calendar palette. */
+  --color-cal-1: light-dark(#007aff, #0a84ff);
+  --color-cal-2: light-dark(#af52de, #bf5af2);
+  --color-cal-3: light-dark(#34c759, #30d158);
+  --color-cal-4: light-dark(#ff9500, #ff9f0a);
+  --color-cal-5: light-dark(#ff2d55, #ff375f);
+  --color-cal-6: light-dark(#5ac8fa, #64d2ff);
+
+  --card-radius: 1.5rem;
+  --card-corner-shape: squircle;
+  --card-border-width: 0px;
+  --card-padding: 1.5rem;
+  --card-shadow:
+    0 1px 2px light-dark(rgb(0 0 0 / 0.04), rgb(0 0 0 / 0.3)),
+    0 8px 24px light-dark(rgb(0 0 0 / 0.05), rgb(0 0 0 / 0.35));
+  --card-gap: 1rem;
+  --layout-gap: 1.25rem;
+
+  /* Apple wouldn't use a terminal font: values render in SF too, with
+     tabular figures (below) standing in for mono column alignment. */
+  --font-mono: var(--font-sans);
+}
+
+/* Themes that collapse --font-mono into a proportional face keep numeric
+   columns aligned with tabular figures instead. */
+:root[data-theme="apple"] .font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-theme="apple"] .tab-pills {
+  gap: 1.1rem;
+  margin-block: 0.1rem 0.35rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+:root[data-theme="apple"] .tab-pill {
+  min-height: 1.55rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 0 0.3rem;
+}
+
+:root[data-theme="apple"] .tab-pill-active {
+  border-bottom-color: color-mix(in srgb, var(--color-fg) 48%, transparent);
+  background: transparent;
+  color: var(--color-fg);
+  box-shadow: none;
+}

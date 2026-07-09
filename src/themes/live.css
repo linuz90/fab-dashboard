@@ -1,0 +1,140 @@
+/* Live theme: Apple's minimal glass cards floating over a macOS-style
+   time-of-day sky gradient. Live consumes the generic [data-time-phase] signal
+   exposed by the theme runtime and forces color-scheme by the clock, so the
+   dashboard brightens at dawn and dims at night on its own. Cards are frosted
+   (translucent + backdrop blur) so the sky glows faintly through them.
+   Colors/status/cal reuse the Apple/SF palette; the gradient itself lives on
+   the phase blocks. */
+:root[data-theme="live"] {
+  --color-canvas: light-dark(#e8f0fb, #0a0c16); /* solid fallback if a phase is missing */
+  /* Lightly translucent cards; --card-backdrop (below) blurs the sky behind
+     them, so the tint only needs to be gentle to read as frosted glass. */
+  --color-card: light-dark(rgb(255 255 255 / 0.8), rgb(24 24 30 / 0.68));
+  --color-border: light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.1));
+  --color-fg: light-dark(#1d1d1f, #f5f5f7);
+  --color-muted: light-dark(#54545a, #b6b6bd);
+  --color-faint: light-dark(#7c7c84, #7d7d86);
+
+  --color-success: light-dark(#248a3d, #30d158);
+  --color-warning: light-dark(#c93400, #ff9f0a);
+  --color-danger: light-dark(#d70015, #ff453a);
+  --color-success-soft: light-dark(rgb(52 199 89 / 0.14), rgb(48 209 88 / 0.16));
+  --color-warning-soft: light-dark(rgb(255 149 0 / 0.14), rgb(255 159 10 / 0.16));
+  --color-danger-soft: light-dark(rgb(255 59 48 / 0.12), rgb(255 69 58 / 0.16));
+
+  --color-accent: light-dark(#0071e3, #0a84ff);
+
+  --color-cal-1: light-dark(#007aff, #0a84ff);
+  --color-cal-2: light-dark(#af52de, #bf5af2);
+  --color-cal-3: light-dark(#34c759, #30d158);
+  --color-cal-4: light-dark(#ff9500, #ff9f0a);
+  --color-cal-5: light-dark(#ff2d55, #ff375f);
+  --color-cal-6: light-dark(#5ac8fa, #64d2ff);
+
+  --card-radius: 1.5rem;
+  --card-corner-shape: squircle;
+  --card-border-width: 0.5px;
+  /* A luminous top-lit edge sells the glass panel; inner separators stay on the
+     dimmer --color-border above. */
+  --card-border-color: light-dark(rgb(255 255 255 / 0.65), rgb(255 255 255 / 0.14));
+  --card-padding: 1.5rem;
+  --card-backdrop: saturate(180%) blur(20px);
+  --card-shadow:
+    0 1px 3px light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.35)),
+    0 10px 30px light-dark(rgb(30 40 70 / 0.12), rgb(0 0 0 / 0.4));
+  --card-gap: 1rem;
+  --layout-gap: 1.25rem;
+
+  /* SF everywhere, like Apple; tabular figures (below) align value columns. */
+  --font-mono: var(--font-sans);
+}
+
+/* Sky phases: each forces a color-scheme (day = light, night = dark) so Live
+   follows the clock, and paints --live-bg, a top-of-sky-to-horizon gradient.
+   theme.ts sets [data-time-phase] and advances it through the day; the inline
+   script in index.html sets it once before first paint. */
+:root[data-theme="live"][data-time-phase="dawn"] {
+  color-scheme: light;
+  --live-bg: linear-gradient(180deg, #b8cdea 0%, #e6d3d6 60%, #f7d9bf 100%);
+}
+:root[data-theme="live"][data-time-phase="morning"] {
+  color-scheme: light;
+  --live-bg: linear-gradient(180deg, #a9cdf2 0%, #d3e6f8 55%, #eef6fc 100%);
+}
+:root[data-theme="live"][data-time-phase="day"] {
+  color-scheme: light;
+  --live-bg: linear-gradient(180deg, #8fbef0 0%, #c4e0f7 50%, #eaf5fd 100%);
+}
+:root[data-theme="live"][data-time-phase="dusk"] {
+  color-scheme: light;
+  --live-bg: linear-gradient(180deg, #9c9cc4 0%, #d9a9b0 55%, #f4c391 100%);
+}
+:root[data-theme="live"][data-time-phase="twilight"] {
+  color-scheme: dark;
+  --live-bg: linear-gradient(180deg, #191a35 0%, #33285a 60%, #4a3a63 100%);
+}
+:root[data-theme="live"][data-time-phase="night"] {
+  color-scheme: dark;
+  --live-bg: linear-gradient(180deg, #060811 0%, #0d1024 55%, #070810 100%);
+}
+
+/* The sky is a position:fixed layer behind the cards (z-index -1), not a
+   background-attachment:fixed image: fixed backgrounds repaint every scroll
+   frame (janky under the cards' backdrop-blur) and don't reliably cover the
+   macOS rubber-band overscroll. Instead the root gets a solid canvas fill so
+   the bounce region matches the sky instead of flashing the page white, a
+   transparent body lets the fixed sky show through, and the cards scroll over
+   it like looking out a window. */
+:root[data-theme="live"] {
+  background-color: var(--color-canvas);
+}
+:root[data-theme="live"] body {
+  background: transparent;
+}
+:root[data-theme="live"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--live-bg, var(--color-canvas));
+}
+
+/* Light sky phases keep dark type over the bright sky. Dark phases already get
+   light fg from color-scheme: dark, so they need no override. */
+:root[data-theme="live"]:is(
+    [data-time-phase="dawn"],
+    [data-time-phase="morning"],
+    [data-time-phase="day"],
+    [data-time-phase="dusk"]
+  ) {
+  --color-header-fg: rgb(29 29 31 / 0.86);
+  --color-header-faint: rgb(29 29 31 / 0.58);
+  --color-header-border: rgb(29 29 31 / 0.18);
+}
+
+:root[data-theme="live"] .font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-theme="live"] .tab-pills {
+  gap: 1.1rem;
+  margin-block: 0.1rem 0.35rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+:root[data-theme="live"] .tab-pill {
+  min-height: 1.55rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 0 0.3rem;
+}
+
+:root[data-theme="live"] .tab-pill-active {
+  border-bottom-color: color-mix(in srgb, var(--color-fg) 48%, transparent);
+  background: transparent;
+  color: var(--color-fg);
+  box-shadow: none;
+}

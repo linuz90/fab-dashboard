@@ -1,0 +1,323 @@
+/* Classic MacOS theme: Mac OS 8/9 gray chrome over a simple periwinkle
+   desktop. It deliberately forces light mode: classic Mac UI is a
+   gray-chrome world, and letting system dark invert it would lose the joke. */
+:root[data-theme="classic-macos"] {
+  color-scheme: light;
+
+  --font-sans: Chicago, Charcoal, Geneva, "Lucida Grande", "Helvetica Neue", sans-serif;
+  --font-mono: Monaco, "SF Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  --color-canvas: #6a6da3;
+  --color-card: #dedede;
+  --color-border: #707070;
+  --color-fg: #111111;
+  --color-muted: #454545;
+  --color-faint: #676767;
+  --color-header-fg: #111111;
+  --color-header-faint: #343434;
+  --color-header-border: #111111;
+
+  --color-success: #087c25;
+  --color-warning: #9a6100;
+  --color-danger: #a40000;
+  --color-success-soft: #d8ead9;
+  --color-warning-soft: #eee0bd;
+  --color-danger-soft: #ead1d1;
+
+  /* Classic selection blue: loud on purpose, restrained by tiny UI surfaces. */
+  --color-accent: #0000d4;
+
+  /* Finder-label-ish colors, tuned down so dense dashboard rows stay calm. */
+  --color-cal-1: #0000d4;
+  --color-cal-2: #7d2aa8;
+  --color-cal-3: #0a7f2e;
+  --color-cal-4: #b66a00;
+  --color-cal-5: #b00042;
+  --color-cal-6: #007b83;
+
+  --card-radius: 0px;
+  --card-corner-shape: round;
+  --card-border-width: 1px;
+  --card-border-color: #111111;
+  --card-padding: 0.875rem;
+  --card-shadow:
+    inset 1px 1px 0 #ffffff,
+    inset -1px -1px 0 #777777,
+    2px 2px 0 rgb(0 0 0 / 0.34);
+  --card-gap: 0.75rem;
+  --layout-gap: 1rem;
+
+  --focus-ring-width: 1px;
+  --focus-ring-style: dotted;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--classic-dark);
+  --focus-ring-halo: transparent;
+
+  --classic-highlight: #ffffff;
+  --classic-face: #dedede;
+  --classic-shadow: #777777;
+  --classic-dark: #111111;
+  --classic-menubar: #d6d6d6;
+  --classic-stripe: rgb(0 0 0 / 0.36);
+}
+
+/* The desktop color comes from the purple Mac OS 8/9 refs; keep it plain and
+   monochrome so the window chrome carries the theme. */
+:root[data-theme="classic-macos"] body {
+  background-color: var(--color-canvas);
+  background-image: none;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: geometricPrecision;
+}
+
+:root[data-theme="classic-macos"] .app-shell {
+  padding-top: calc(3.25rem + env(safe-area-inset-top) + var(--app-titlebar-offset));
+}
+
+:root[data-theme="classic-macos"] .app-header {
+  position: fixed;
+  inset: calc(env(safe-area-inset-top) + var(--app-titlebar-offset)) 0 auto;
+  z-index: 70;
+  height: 28px;
+  gap: 1rem;
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+  border-top: 1px solid var(--classic-highlight);
+  border-bottom: 1px solid var(--classic-dark);
+  background: var(--classic-menubar);
+  box-shadow: inset 0 -1px 0 var(--classic-shadow);
+  font-family: var(--font-sans);
+  text-shadow: 1px 1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .app-title,
+:root[data-theme="classic-macos"] .app-status {
+  font-family: var(--font-sans);
+  font-size: var(--type-ui-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+:root[data-theme="classic-macos"] .theme-selector {
+  flex: 0 0 auto;
+}
+
+:root[data-theme="classic-macos"] .app-actions {
+  gap: 0.35rem;
+}
+
+:root[data-theme="classic-macos"] .app-actions > button {
+  width: 18px;
+  height: 18px;
+  border-color: var(--classic-dark);
+  border-radius: 0;
+  background: var(--classic-face);
+  color: var(--classic-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+  text-shadow: 1px 1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .app-actions > button svg {
+  width: 12px;
+  height: 12px;
+}
+
+:root[data-theme="classic-macos"] .theme-selector > button {
+  height: 18px;
+  padding: 0 0.3rem;
+  border-color: var(--classic-dark);
+  background: var(--classic-face);
+  color: var(--classic-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+  font-family: var(--font-sans);
+  font-size: var(--type-ui-2xs);
+  text-shadow: 1px 1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .theme-selector [role="menu"] {
+  margin-top: 2px;
+  border-color: var(--classic-dark);
+  background: var(--classic-face);
+  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.42);
+  font-family: var(--font-sans);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="classic-macos"] .theme-selector [role="menuitemradio"] {
+  border-radius: 0;
+}
+
+:root[data-theme="classic-macos"] .theme-selector [role="menuitemradio"]:focus-visible {
+  background: var(--classic-highlight);
+  box-shadow: inset 0 0 0 1px var(--classic-dark);
+}
+
+:root[data-theme="classic-macos"] .card-surface {
+  position: relative;
+  overflow: clip;
+}
+
+/* The first CardShell header becomes a tiny classic Mac window title bar.
+   It is CSS-only so card components keep using the shared CardShell API. */
+:root[data-theme="classic-macos"] .card-surface > header:first-child {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  margin: calc(0px - var(--card-padding)) calc(0px - var(--card-padding)) 0;
+  padding: 0 3.75rem 0 2rem;
+  border-bottom: 1px solid var(--classic-dark);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      var(--classic-highlight) 0 1px,
+      var(--classic-highlight) 1px 2px,
+      var(--classic-stripe) 2px 3px,
+      transparent 3px 4px
+    ),
+    var(--classic-face);
+}
+
+:root[data-theme="classic-macos"] .card-surface > header:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  width: 0.78rem;
+  height: 0.78rem;
+  transform: translateY(-50%);
+  background: var(--classic-face);
+  border: 1px solid var(--classic-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+}
+
+:root[data-theme="classic-macos"] .card-surface > header:first-child h2,
+:root[data-theme="classic-macos"] .card-surface > header:first-child [data-card-meta-actions] {
+  background: var(--classic-face);
+  padding-inline: 0.35rem;
+  text-shadow: 1px 1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .card-surface > header:first-child h2 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(34%, 14rem);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root[data-theme="classic-macos"] .card-surface > header:first-child [data-card-meta-actions] {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  flex: 0 1 auto;
+  max-width: min(38%, 12rem);
+  transform: translateY(-50%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  :root[data-theme="classic-macos"] .card-surface > header:first-child h2 {
+    max-width: 4.8rem;
+  }
+
+  :root[data-theme="classic-macos"] .card-surface > header:first-child [data-card-meta-actions] {
+    max-width: 5.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  :root[data-theme="classic-macos"] .card-surface > header:first-child h2 {
+    max-width: 3.6rem;
+  }
+
+  :root[data-theme="classic-macos"] .card-surface > header:first-child [data-card-meta-actions] {
+    max-width: 3.75rem;
+  }
+}
+
+/* Classic controls were square and pixel-sharp; applying this only inside the
+   theme turns pills, badges, progress bars, and status dots into tiny pixels. */
+:root[data-theme="classic-macos"] :is(.rounded-full, .rounded-lg, .rounded-xl, .rounded-md) {
+  border-radius: 0;
+}
+
+:root[data-theme="classic-macos"] .dashboard-command-input-wrap,
+:root[data-theme="classic-macos"] .dashboard-command-list,
+:root[data-theme="classic-macos"] .dashboard-command-item {
+  border-radius: 0;
+}
+
+:root[data-theme="classic-macos"] .dashboard-settings-panel {
+  background: var(--classic-face);
+  color: var(--classic-dark);
+  text-shadow: none;
+}
+
+:root[data-theme="classic-macos"] .dashboard-layout-segments {
+  gap: 0;
+  border-color: var(--classic-dark);
+  background: var(--classic-face);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-shadow),
+    inset -1px -1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .dashboard-layout-segment {
+  border-radius: 0;
+  background: transparent;
+  color: var(--classic-dark);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+:root[data-theme="classic-macos"] .dashboard-layout-segment[data-layout-selected="true"] {
+  background: var(--classic-highlight);
+  color: var(--classic-dark);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+}
+
+:root[data-theme="classic-macos"] .dashboard-card-order-row {
+  border-color: var(--classic-dark);
+  background: var(--classic-face);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+  text-shadow: none;
+}
+
+:root[data-theme="classic-macos"] .dashboard-card-order-index {
+  background: var(--classic-shadow);
+  color: var(--classic-highlight);
+  text-shadow: none;
+}
+
+:root[data-theme="classic-macos"] .card-surface[data-card-accent] {
+  /* In paper/window-chrome themes the card outline is structural, not an
+     accent surface. Keep every card border identical so the hierarchy stays
+     calm while icons and content still carry card identity elsewhere. */
+  border-color: var(--card-border-color, var(--color-border));
+}
+
+:root[data-theme="classic-macos"] .dashboard-card-command-target::after {
+  inset: -0.3rem;
+  border-radius: 0;
+  box-shadow: none;
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-health",
+  "connectors": ["demo-health"],
+  "keywords": ["health", "recovery", "sleep"],
+  "freshness": { "connector": "demo-health", "label": "sample" },
+  "visual": { "icon": "activity", "accent": "green" },
+  "blocks": [
+    { "type": "metric", "label": "Recovery", "valuePath": "demo-health.recovery", "pillPath": "demo-health.status", "deltaPath": "demo-health.delta", "tone": "success" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Sleep", "icon": "moon-star", "valuePath": "demo-health.sleep" },
+        { "label": "Steps", "icon": "footprints", "valuePath": "demo-health.steps", "progressPath": "demo-health.stepsPct", "sparklinePath": "demo-health.stepsTrend", "sparklineVariant": "bars" },
+        { "label": "Heart", "icon": "heart-pulse", "valuePath": "demo-health.heart", "sparklinePath": "demo-health.hrvTrend" }
+      ]
+    }
+  ]
+}

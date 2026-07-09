@@ -1,0 +1,48 @@
+/* Kingdom theme: medieval manuscript à la Kingdom Come Deliverance — aged
+   parchment canvas, ink text, serif type, heraldic accents. Dark mode reads
+   as candlelit leather: near-black browns with parchment-colored ink. */
+:root[data-theme="kingdom"] {
+  /* Iowan Old Style ships with macOS/iOS and has the right book-print feel;
+     Palatino/Georgia cover everything else. */
+  --font-sans: "Iowan Old Style", Palatino, "Book Antiqua", Georgia, serif;
+  --font-mono: "Iowan Old Style", Palatino, "Book Antiqua", Georgia, serif;
+
+  --color-canvas: light-dark(#e9dfc6, #171209);
+  --color-card: light-dark(#f6eeda, #221b10);
+  --color-border: light-dark(rgb(75 58 32 / 0.22), rgb(214 193 148 / 0.14));
+  --color-fg: light-dark(#3a2d18, #e3d5b3);
+  --color-muted: light-dark(#77653f, #a8946b);
+  --color-faint: light-dark(#a08c60, #6f6047);
+
+  --color-success: light-dark(#4a6b2e, #8fae5e);
+  --color-warning: light-dark(#9a6210, #d9a441);
+  --color-danger: light-dark(#8e2b1e, #d06b52);
+  --color-success-soft: light-dark(#e6e8cb, #202612);
+  --color-warning-soft: light-dark(#f2e5c2, #2c2210);
+  --color-danger-soft: light-dark(#f0dccb, #2e150e);
+
+  /* Gold-leaf progress fill. */
+  --color-accent: light-dark(#8f6b1d, #c9a227);
+
+  /* Heraldic palette for calendar dots. */
+  --color-cal-1: light-dark(#3d5a80, #7d9cc0);
+  --color-cal-2: light-dark(#6b4a7a, #a583b5);
+  --color-cal-3: light-dark(#4a6b2e, #8fae5e);
+  --color-cal-4: light-dark(#9a7716, #d4b04a);
+  --color-cal-5: light-dark(#8e2b1e, #c76a55);
+  --color-cal-6: light-dark(#3c665f, #7aa89f);
+
+  --card-radius: 0.5rem;
+  --card-border-width: 1px;
+  /* Card outline runs darker than the inner separators so cards read like
+     plates on the parchment (this is what --card-border-color is for). */
+  --card-border-color: light-dark(rgb(75 58 32 / 0.35), rgb(214 193 148 / 0.2));
+  --card-padding: 1.25rem;
+  --card-shadow: 0 2px 6px light-dark(rgb(59 44 20 / 0.1), rgb(0 0 0 / 0.5));
+  --card-gap: 0.875rem;
+  --layout-gap: 1rem;
+}
+
+:root[data-theme="kingdom"] .font-mono {
+  font-variant-numeric: tabular-nums;
+}

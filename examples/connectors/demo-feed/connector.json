@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-feed",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "headline": "Mostly calm. One product thread needs a reply.",
+    "teamChat": [
+      { "headline": "Dashboard QA", "channel": "#product", "text": "Scheduling edge cases are down to two known repros.", "icon": "rocket", "tone": "success", "chips": [{ "label": "for you", "tone": "info" }] },
+      { "headline": "Export requests", "channel": "#support", "text": "More teams are asking for cleaner thread exports.", "icon": "message-square-warning", "tone": "warning", "chips": [] },
+      { "headline": "Model spend", "channel": "#ai", "text": "Gateway spend is back inside the expected month band.", "icon": "badge-dollar-sign", "tone": "info", "chips": [] },
+      { "headline": "Calendar density", "channel": "#product", "text": "Week view overlap now matches exact-time drafts.", "icon": "calendar-days", "tone": "success", "chips": [] }
+    ],
+    "bookmarks": [
+      { "headline": "Local-first dashboards", "author": "Mira", "text": "A practical note on config-driven home pages." },
+      { "headline": "SQLite sync patterns", "author": "Sam", "text": "A small thread about caches, snapshots, and rollbacks." }
+    ]
+  }
+}

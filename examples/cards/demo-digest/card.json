@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-digest",
+  "connectors": ["demo-feed"],
+  "keywords": ["chat", "bookmarks", "digest"],
+  "freshness": { "connector": "demo-feed", "label": "sample" },
+  "visual": { "icon": "messages-square", "accent": "purple" },
+  "blocks": [
+    { "type": "text", "path": "demo-feed.headline", "variant": "body" },
+    { "type": "list", "variant": "feed", "path": "demo-feed.teamChat", "titlePath": "headline", "metaPath": "channel", "textPath": "text", "iconPath": "icon", "chipsPath": "chips", "tonePath": "tone", "limit": 5 }
+  ]
+}

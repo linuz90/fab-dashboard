@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-bookmarks",
+  "connectors": ["demo-bookmarks"],
+  "keywords": ["links", "bookmarks", "reading"],
+  "freshness": { "connector": "demo-bookmarks", "label": "sample" },
+  "visual": { "icon": "bookmark", "accent": "blue" },
+  "blocks": [
+    { "type": "list", "variant": "feed", "density": "compact", "path": "demo-bookmarks.bookmarks", "titlePath": "title", "metaPath": "saved", "textPath": "text", "icon": "bookmark", "countPath": "likes", "countIcon": "heart", "limit": 4 }
+  ]
+}

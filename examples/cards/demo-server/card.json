@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-server",
+  "connectors": ["demo-server"],
+  "keywords": ["openclaw", "services", "gateway", "health"],
+  "freshness": { "connector": "demo-server", "label": "sample" },
+  "visual": { "icon": "server", "accent": "teal" },
+  "blocks": [
+    { "type": "status", "label": "Services", "tonePath": "demo-server.tone", "messagePath": "demo-server.headline", "valuePath": "demo-server.gateway" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Gateway", "icon": "network", "valuePath": "demo-server.gateway" },
+        { "label": "Heartbeat", "icon": "activity", "valuePath": "demo-server.heartbeat" },
+        { "label": "Memory", "icon": "memory-stick", "valuePath": "demo-server.memory", "progressPath": "demo-server.memoryPct" },
+        { "label": "Disk", "icon": "hard-drive", "valuePath": "demo-server.disk", "progressPath": "demo-server.diskPct" },
+        { "label": "Load", "icon": "line-chart", "valuePath": "demo-server.load", "sparklinePath": "demo-server.loadHistory" }
+      ]
+    },
+    { "type": "list", "variant": "timeline", "path": "demo-server.rows", "titlePath": "title", "metaPath": "meta", "textPath": "text", "tonePath": "tone", "limit": 3 }
+  ]
+}

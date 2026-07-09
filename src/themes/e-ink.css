@@ -1,0 +1,264 @@
+/* E-ink theme: Kindle Paperwhite paper — canvas and cards share one cool,
+   near-neutral off-white (with an ordered-dither overlay, below), so cards exist
+   only as dim 1px hairlines with square corners and no shadows. Status reads
+   through tone instead of hue (danger darkest, success quietest); dark mode
+   is Kindle night reading — a soft dark gray, not pure black. Fonts and
+   spacing inherit the basic defaults. */
+:root[data-theme="e-ink"] {
+  --color-canvas: light-dark(#f9f9f8, #161617);
+  --color-card: light-dark(#f9f9f8, #161617);
+  --color-border: light-dark(rgb(0 0 0 / 0.14), rgb(255 255 255 / 0.16));
+  --color-fg: light-dark(#1a1a1a, #f2f2f2);
+  --color-muted: light-dark(#565656, #b0b0b2);
+  --color-faint: light-dark(#828282, #79797c);
+
+  --color-success: light-dark(#606060, #9c9c9e);
+  --color-warning: light-dark(#3d3d3d, #cccccf);
+  --color-danger: light-dark(#1a1a1a, #f2f2f2);
+  --color-success-soft: light-dark(#e9e9e8, #202022);
+  --color-warning-soft: light-dark(#e3e3e2, #28282a);
+  --color-danger-soft: light-dark(#dcdcdb, #303032);
+
+  --color-accent: light-dark(#1a1a1a, #f2f2f2);
+
+  /* Calendar dots as a gray ramp: identity by shade, not hue. */
+  --color-cal-1: light-dark(#1a1a1a, #f2f2f2);
+  --color-cal-2: light-dark(#3d3d3d, #cccccc);
+  --color-cal-3: light-dark(#5c5c5c, #aaaaaa);
+  --color-cal-4: light-dark(#7a7a7a, #888888);
+  --color-cal-5: light-dark(#999999, #666666);
+  --color-cal-6: light-dark(#b8b8b8, #4d4d4d);
+
+  --card-radius: 0px;
+  --card-border-width: 1px;
+  /* Card rule sits just above the inner separators — a dim hairline, not a
+     hard print line, so cards read as gentle folds in the paper. */
+  --card-border-color: light-dark(rgb(0 0 0 / 0.22), rgb(255 255 255 / 0.24));
+  --color-header-border: var(--card-border-color);
+  --card-shadow: none;
+  --app-shell-padding-top: max(0.75rem, env(safe-area-inset-top));
+
+  --focus-ring-color: var(--color-fg);
+  --focus-ring-halo: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+}
+
+:root[data-theme="e-ink"]
+  :is(.card-surface, .border-border, .border-header-border, .border-faint, .divide-border > :not([hidden]) ~ :not([hidden])) {
+  border-style: dotted;
+}
+
+:root[data-theme="e-ink"] .music-artwork {
+  filter: grayscale(1) contrast(1.12);
+}
+
+:root[data-theme="e-ink"] .card-title-icon {
+  display: none;
+}
+
+:root[data-theme="e-ink"] .app-header {
+  display: grid;
+  grid-template-columns: minmax(3.5rem, 1fr) auto minmax(8rem, 1fr);
+  min-height: 1.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+:root[data-theme="e-ink"] .app-title,
+:root[data-theme="e-ink"] .app-status {
+  display: none;
+}
+
+:root[data-theme="e-ink"] .eink-device-time,
+:root[data-theme="e-ink"] .eink-device-weather,
+:root[data-theme="e-ink"] .eink-device-battery {
+  display: flex;
+}
+
+:root[data-theme="e-ink"] .eink-device-time {
+  grid-column: 1;
+  justify-self: start;
+}
+
+:root[data-theme="e-ink"] .eink-device-weather {
+  grid-column: 2;
+  justify-self: center;
+}
+
+:root[data-theme="e-ink"] .app-actions {
+  grid-column: 3;
+  justify-self: end;
+  gap: 0.35rem;
+}
+
+:root[data-theme="e-ink"] .app-actions > button,
+:root[data-theme="e-ink"] .theme-selector > button {
+  height: 1.45rem;
+  border: 0;
+  border-radius: 2px;
+}
+
+:root[data-theme="e-ink"] .app-actions > button {
+  width: 1.45rem;
+}
+
+:root[data-theme="e-ink"] .theme-selector > button {
+  padding-left: 0.45rem;
+  padding-right: 0.25rem;
+}
+
+:root[data-theme="e-ink"] .app-shell > main {
+  margin-top: 1rem;
+}
+
+/* E-ink ordered dither: a tiny Bayer-ish pixel matrix fixed over the whole
+   viewport. Text stays vector-sharp underneath; only the paper/card plane gets
+   the display texture. Blend modes gate it per scheme with no media query:
+   black ink multiplies away on dark canvas, while the inverted copy screens
+   away on light canvas. */
+:root[data-theme="e-ink"] body::before,
+:root[data-theme="e-ink"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23000' fill-opacity='.82' d='M0 0h1v1H0zM4 0h1v1H4zM2 2h1v1H2zM6 2h1v1H6zM1 4h1v1H1zM5 4h1v1H5zM3 6h1v1H3zM7 6h1v1H7z'/%3E%3Cpath fill='%23000' fill-opacity='.48' d='M2 0h1v1H2zM6 0h1v1H6zM1 1h1v1H1zM5 1h1v1H5zM0 2h1v1H0zM4 2h1v1H4zM3 3h1v1H3zM7 3h1v1H7zM3 4h1v1H3zM7 4h1v1H7zM0 5h1v1H0zM4 5h1v1H4zM1 6h1v1H1zM5 6h1v1H5zM2 7h1v1H2zM6 7h1v1H6z'/%3E%3Cpath fill='%23000' fill-opacity='.24' d='M3 0h1v1H3zM7 0h1v1H7zM2 1h1v1H2zM6 1h1v1H6zM1 2h1v1H1zM5 2h1v1H5zM0 3h1v1H0zM4 3h1v1H4zM2 4h1v1H2zM6 4h1v1H6zM1 5h1v1H1zM5 5h1v1H5zM0 6h1v1H0zM4 6h1v1H4zM3 7h1v1H3zM7 7h1v1H7z'/%3E%3C/svg%3E");
+  background-size: 8px 8px;
+  image-rendering: pixelated;
+}
+
+:root[data-theme="e-ink"] body::before {
+  mix-blend-mode: multiply;
+  opacity: 0.09;
+}
+
+:root[data-theme="e-ink"] body::after {
+  filter: invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.06;
+}
+
+@media (width < 30rem) {
+  :root[data-theme="e-ink"] .app-header {
+    grid-template-columns: minmax(3rem, 1fr) auto minmax(6.25rem, 1fr);
+    gap: 0.5rem;
+  }
+
+  :root[data-theme="e-ink"] .eink-battery-percent {
+    display: none;
+  }
+}
+
+@media (display-mode: window-controls-overlay) {
+  :root[data-theme="e-ink"] {
+    --app-shell-padding-top: max(0.75rem, calc(env(safe-area-inset-top) + var(--app-titlebar-offset) + 0.25rem));
+  }
+}
+
+:root[data-theme="e-ink"] .dashboard-command-input-wrap,
+:root[data-theme="e-ink"] .dashboard-command-list,
+:root[data-theme="e-ink"] .dashboard-command-item {
+  border-radius: 0;
+}
+
+:root[data-theme="e-ink"] .dashboard-command-overlay {
+  background: color-mix(in srgb, var(--color-canvas) 90%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-command-input-wrap,
+:root[data-theme="e-ink"] .dashboard-command-list {
+  box-shadow: none;
+}
+
+:root[data-theme="e-ink"] .tab-pills {
+  gap: 1rem;
+  margin-block: 0.1rem 0.45rem;
+  border: 0;
+  border-bottom: 1px dotted var(--card-border-color, var(--color-border));
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+:root[data-theme="e-ink"] .tab-pill {
+  min-height: 1.25rem;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -1px;
+  padding: 0 0 0.35rem;
+  color: var(--color-faint);
+}
+
+:root[data-theme="e-ink"] .tab-pill-active {
+  border-bottom-color: var(--color-fg);
+  background: transparent;
+  color: var(--color-fg);
+}
+
+:root[data-theme="e-ink"] .dashboard-layout-segments {
+  gap: 1rem;
+  border: 0;
+  border-bottom: 1px dotted var(--card-border-color, var(--color-border));
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+:root[data-theme="e-ink"] .dashboard-layout-segment {
+  min-height: 1.85rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 0 0.35rem;
+  background: transparent;
+  color: var(--color-muted);
+  box-shadow: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-layout-segment[data-layout-selected="true"] {
+  border-bottom-color: var(--color-fg);
+  background: transparent;
+  color: var(--color-fg);
+  box-shadow: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-card-order-row {
+  min-height: 2.7rem;
+  border: 0;
+  border-bottom: 1px dotted var(--card-border-color, var(--color-border));
+  border-radius: 0;
+  padding-inline: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-card-order-handle {
+  border-radius: 0;
+}
+
+:root[data-theme="e-ink"] .dashboard-card-order-handle:hover {
+  background: transparent;
+}
+
+:root[data-theme="e-ink"] .dashboard-card-order-index {
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-faint);
+}
+
+:root[data-theme="e-ink"] .card-surface[data-card-accent] {
+  /* In paper/window-chrome themes the card outline is structural, not an
+     accent surface. Keep every card border identical so the hierarchy stays
+     calm while icons and content still carry card identity elsewhere. */
+  border-color: var(--card-border-color, var(--color-border));
+}
+
+:root[data-theme="e-ink"] .dashboard-card-command-target::after {
+  inset: -0.3rem;
+  border-radius: 0;
+  box-shadow: none;
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-bookmarks",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "bookmarks": [
+      { "title": "Local-first sync trade-offs", "saved": "today", "text": "Conflict logs, rollback files, and why dashboards should fail softly.", "likes": "47" },
+      { "title": "MCP auth notes", "saved": "today", "text": "A compact checklist for token refresh, scopes, and local callback ports.", "likes": "19" },
+      { "title": "Dense card heuristics", "saved": "Tue", "text": "Stable row shapes beat prose when a dashboard is checked every day.", "likes": "86" },
+      { "title": "PWA offline testing", "saved": "Mon", "text": "Cache invalidation, app icons, and the traps hidden in install prompts.", "likes": "33" }
+    ]
+  }
+}

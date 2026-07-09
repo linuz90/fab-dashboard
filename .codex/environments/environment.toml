@@ -1,0 +1,30 @@
+version = 1
+name = "fab-dashboard"
+
+[setup]
+script = "./workspace-setup.sh init"
+
+[[actions]]
+name = "Run"
+icon = "run"
+command = "bun run dev"
+
+[[actions]]
+name = "Run Demo"
+icon = "run"
+command = "if [ ! -f \"$PWD/local/demo/dashboard.json\" ]; then FAB_DASHBOARD_HOME=\"$PWD/local/demo\" FAB_DASHBOARD_STATE_HOME=\"$PWD/local/state\" bun run cli init --demo; fi; FAB_DASHBOARD_HOME=\"$PWD/local/demo\" FAB_DASHBOARD_STATE_HOME=\"$PWD/local/state\" bun run dev"
+
+[[actions]]
+name = "Test"
+icon = "test"
+command = "bun test"
+
+[[actions]]
+name = "Typecheck"
+icon = "test"
+command = "bun run typecheck"
+
+[[actions]]
+name = "Build"
+icon = "test"
+command = "bun run build"

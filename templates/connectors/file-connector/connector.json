@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-source",
+  "kind": "file",
+  "ttlSeconds": 60,
+  "persist": true,
+  "path": "~/path/to/snapshot.json",
+  "maxBytes": 1000000,
+  "allowSymlinks": false
+}

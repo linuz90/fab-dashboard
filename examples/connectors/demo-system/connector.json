@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-system",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "summary": "Focus mode is on; noisy surfaces are quiet.",
+    "tone": "success",
+    "showFocusStatus": true,
+    "weather": { "place": "Sample City", "tempC": 21, "code": 2, "isDay": true, "hiC": 24, "loC": 16 },
+    "battery": "91%",
+    "focus": "Focus",
+    "nextCheck": "11:00",
+    "screen": "Awake",
+    "chat": "muted",
+    "cpu": "18%",
+    "memory": "61%",
+    "disk": "47%",
+    "cpuPct": 18,
+    "memoryPct": 61,
+    "diskPct": 47,
+    "history": [12, 16, 14, 19, 22, 18, 17, 21, 18],
+    "checks": [
+      { "title": "Doctor snapshot", "meta": "12m ago", "text": "Required checks pass.", "tone": "success" },
+      { "title": "Notes sync", "meta": "fresh", "text": "Local notes are in sync.", "tone": "success" },
+      { "title": "Dashboard cache", "meta": "warm", "text": "Last-known-good snapshots are available.", "tone": "info" }
+    ]
+  }
+}

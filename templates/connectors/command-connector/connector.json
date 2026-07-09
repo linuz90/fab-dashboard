@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-source",
+  "kind": "command",
+  "ttlSeconds": 60,
+  "persist": true,
+  "command": "your-command",
+  "args": ["--json"],
+  "envAllowlist": [],
+  "timeoutMs": 8000,
+  "maxStdoutBytes": 1000000
+}

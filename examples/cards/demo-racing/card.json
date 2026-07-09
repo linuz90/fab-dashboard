@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-racing",
+  "connectors": ["demo-racing"],
+  "keywords": ["f1", "formula", "standings", "motorsport"],
+  "freshness": { "connector": "demo-racing", "label": "sample" },
+  "visual": { "icon": "flag", "accent": "red" },
+  "blocks": [
+    {
+      "type": "tabs",
+      "id": "racing-tabs",
+      "defaultTab": "drivers",
+      "persist": true,
+      "tabs": [
+        {
+          "id": "drivers",
+          "label": "Drivers",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-racing.drivers", "titlePath": "name", "metaPath": "points", "textPath": "team", "icon": "trophy", "limit": 6 }
+          ]
+        },
+        {
+          "id": "constructors",
+          "label": "Teams",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-racing.constructors", "titlePath": "name", "metaPath": "points", "textPath": "team", "icon": "flag", "limit": 6 }
+          ]
+        },
+        {
+          "id": "weekend",
+          "label": "Grand Prix",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-racing.weekend", "titlePath": "name", "metaPath": "when", "textPath": "state", "tonePath": "tone", "limit": 5 },
+            { "type": "text", "path": "demo-racing.readiness", "variant": "muted" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-tasks",
+  "connectors": ["demo-tasks"],
+  "keywords": ["tasks", "todos", "today"],
+  "freshness": { "connector": "demo-tasks", "label": "sample" },
+  "visual": { "icon": "check-circle-2", "accent": "blue" },
+  "blocks": [
+    {
+      "type": "list",
+      "variant": "check",
+      "path": "demo-tasks.items",
+      "sectionPath": "project",
+      "titlePath": "title",
+      "metaPath": "due",
+      "checkedPath": "done",
+      "mutedPath": "stale",
+      "limit": 8
+    }
+  ]
+}

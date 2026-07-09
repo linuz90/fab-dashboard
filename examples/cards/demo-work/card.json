@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-work",
+  "connectors": ["demo-work"],
+  "keywords": ["saas", "startup", "business", "mrr"],
+  "freshness": { "connector": "demo-work", "label": "sample" },
+  "visual": { "icon": "line-chart", "accent": "green" },
+  "blocks": [
+    { "type": "metric", "label": "MRR", "valuePath": "demo-work.mrr", "deltaPath": "demo-work.delta", "sparklinePath": "demo-work.history", "tone": "success" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "ARR", "valuePath": "demo-work.arr" },
+        { "label": "Customers", "valuePath": "demo-work.customers" },
+        { "label": "ARPA", "valuePath": "demo-work.arpa" }
+      ]
+    },
+    { "type": "list", "variant": "timeline", "path": "demo-work.movements", "titlePath": "title", "metaPath": "meta", "textPath": "text", "tonePath": "tone", "limit": 5 }
+  ]
+}

@@ -1,0 +1,179 @@
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { flushSync } from "react-dom";
+import { AnimatedCardFrame } from "./components/AnimatedCardFrame";
+import { CardInteractionModeProvider } from "./components/CardInteractionMode";
+import { CardShell, ErrorCard } from "./components/CardShell";
+import { CommandSearch, dashboardCardDomId } from "./components/CommandSearch";
+import { DashboardSettings } from "./components/DashboardSettings";
+import { HeaderWidgets } from "./components/HeaderWidgets";
+import { Masonry, type MasonryItem } from "./components/Masonry";
+import { ThemeSelector } from "./components/ThemeSelector";
+import { syncThemeWithAppearance } from "./lib/theme";
+import { agoLabel, friendlyDateTime } from "./lib/time";
+import { useMobileCommandPull } from "./lib/useMobileCommandPull";
+import { useDashboard, useNow } from "./lib/useDashboard";
+import { Blocks, CardProblem } from "./renderer/BlockRenderer";
+import { DashboardIcon } from "./renderer/icons";
+import { resolveDashboardLayout } from "./shared/layout";
+import type { ResolvedCard, SourceFreshness } from "./shared/schemas";
+
+export function freshnessFor(card: ResolvedCard, now: number): { label: string; tone: "ok" | "stale" | "error" } | null {
+  const freshnessEntry = card.definition?.freshness?.connector
+    ? ([card.definition.freshness.connector, card.freshness[card.definition.freshness.connector]] as const)
+    : Object.entries(card.freshness)[0];
+  if (!freshnessEntry) return null;
+  const [connectorId, freshness] = freshnessEntry;
+  if (!freshness) return null;
+  let tone: "ok" | "stale" | "error" = freshness.status === "fresh" ? "ok" : freshness.status;
+  const staleAfterSeconds = card.definition?.freshness?.staleAfterSeconds;
+  if (tone === "ok" && staleAfterSeconds && freshness.fetchedAt) {
+    const fetchedAt = Date.parse(freshness.fetchedAt);
+    if (Number.isFinite(fetchedAt) && now - fetchedAt > staleAfterSeconds * 1000) tone = "stale";
+  }
+  const source = card.definition?.freshness?.label ?? connectorId ?? freshness.status;
+  return {
+    label: freshnessLabel(freshness, source, now),
+    tone,
+  };
+}
+
+function freshnessLabel(freshness: SourceFreshness, source: string = freshness.status, now?: number): string {
+  if (freshness.refreshing) return `${source} · refreshing`;
+  if (!freshness.fetchedAt || now === undefined) return source === freshness.status ? freshness.status : `${source} · ${freshness.status}`;
+  return `${source} · ${agoLabel(freshness.fetchedAt, now) || freshness.status}`;
+}
+
+function headerTime(ts: number): string {
+  return new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit" }).format(ts);
+}
+
+function EmptyDashboard() {
+  return (
+    <div className="mx-auto max-w-lg pt-16 text-center">
+      <CardShell title="Empty dashboard" freshness={{ label: "safe", tone: "ok" }}>
+        <p className="type-ui-sm leading-relaxed text-muted">
+          No local cards are configured. Run <span className="font-mono text-fg">bun run cli init --demo</span> for examples or add cards under your config home.
+        </p>
+      </CardShell>
+    </div>
+  );
+}
+
+function JsonCard({ card, now, onRefresh, refreshing }: { card: ResolvedCard; now: number; onRefresh: () => void; refreshing: boolean }) {
+  if (!card.definition) return <ErrorCard title={card.instance.title} message={card.error ?? "missing card definition"} />;
+  const visual = card.definition.visual;
+  return (
+    <CardShell
+      id={card.instance.id}
+      title={card.instance.title}
+      freshness={freshnessFor(card, now)}
+      visual={{
+        accent: visual.accent,
+        icon: visual.icon ? <DashboardIcon name={visual.icon} /> : undefined,
+      }}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
+    >
+      {card.error && <CardProblem message={card.error} hint={card.definition.errorHint} />}
+      <Blocks blocks={card.definition.blocks} data={card.data} storageKey={card.instance.id} onRefresh={onRefresh} />
+    </CardShell>
+  );
+}
+
+export function App() {
+  const { resp, fetchError, fetchedAt, isManualRefreshInFlight, showRefreshMotion, refresh } = useDashboard();
+  const now = useNow();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [cardsHaveEntered, setCardsHaveEntered] = useState(false);
+  const [commandSearchOpen, setCommandSearchOpen] = useState(false);
+  const cardsEntering = Boolean(resp && !cardsHaveEntered);
+  const headerWidgets = resp?.header?.widgets ?? [];
+  const layout = resolveDashboardLayout(resp?.config.appearance.layout);
+  const appearanceDefaultTheme = resp?.config.appearance.defaultTheme ?? null;
+  const appearanceThemesKey = resp?.config.appearance.themes?.join("\u0000") ?? "";
+  const footerText = fetchError
+    ? `offline · ${fetchError}`
+    : fetchedAt
+      ? `refreshed ${agoLabel(fetchedAt, now)}`
+      : null;
+
+  useEffect(() => {
+    if (!resp || cardsHaveEntered) return;
+    const timeout = window.setTimeout(() => setCardsHaveEntered(true), 700);
+    return () => window.clearTimeout(timeout);
+  }, [cardsHaveEntered, resp]);
+
+  useEffect(() => {
+    if (resp) syncThemeWithAppearance(resp.config.appearance);
+  }, [Boolean(resp), appearanceDefaultTheme, appearanceThemesKey]);
+
+  useMobileCommandPull({
+    enabled: Boolean(resp),
+    open: commandSearchOpen,
+    scrollContainerRef: scrollRef,
+    onOpen: () => {
+      // Mobile Safari is strict about keyboard focus; keep cmdk's autoFocus
+      // mount inside the native touch gesture that opened the search.
+      flushSync(() => setCommandSearchOpen(true));
+    },
+  });
+
+  return (
+    <CardInteractionModeProvider mode="dashboard">
+      <div ref={scrollRef} className="app-scroll">
+        <div
+          className="app-shell mx-auto"
+          style={{ "--dashboard-layout-max-width": `${layout.maxWidthPx}px` } as CSSProperties}
+        >
+          <header className="app-header relative flex items-center justify-between gap-4">
+            <span className="eink-device-time font-mono type-ui-xs tabular-nums text-header-fg">{headerTime(now)}</span>
+            <h1 className="app-title font-mono type-ui-sm font-medium lowercase text-header-fg">{resp?.config.title ?? "fab-dashboard"}</h1>
+            <span className="app-status absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 type-ui-sm text-header-faint sm:flex">
+              <span>{friendlyDateTime(now)}</span>
+              <HeaderWidgets widgets={headerWidgets} now={now} showSeparator />
+            </span>
+            <span className="eink-device-weather items-center gap-1 font-mono type-ui-xs text-header-faint">
+              <HeaderWidgets widgets={headerWidgets} now={now} />
+            </span>
+            <div className="app-actions flex items-center gap-2">
+              <DashboardSettings resp={resp} />
+              <ThemeSelector appearance={resp?.config.appearance} />
+            </div>
+          </header>
+
+          <main className="mt-6">
+            {!resp ? null : resp.configError && resp.cards.length === 0 ? (
+              <ErrorCard title="dashboard.json" message={resp.configError} />
+            ) : resp.cards.length === 0 ? (
+              <EmptyDashboard />
+            ) : (
+              <>
+                {resp.configError && <div className="mb-[var(--layout-gap)]"><ErrorCard title="Config warning" message={resp.configError} /></div>}
+                <Masonry
+                  maxColumns={layout.maxColumns}
+                  items={resp.cards.map((card, index): MasonryItem => {
+                    const enterDelayMs = Math.min(index * 28, 220);
+                    return {
+                      key: card.instance.id,
+                      full: card.instance.size === "full",
+                      node: (
+                        <div id={dashboardCardDomId(card.instance.id)} data-dashboard-card-id={card.instance.id}>
+                          <AnimatedCardFrame enter={cardsEntering} refreshActive={showRefreshMotion} enterDelayMs={enterDelayMs}>
+                            <JsonCard card={card} now={now} onRefresh={() => void refresh()} refreshing={isManualRefreshInFlight} />
+                          </AnimatedCardFrame>
+                        </div>
+                      ),
+                    };
+                  })}
+                />
+              </>
+            )}
+          </main>
+
+          {footerText && <footer className="mt-10 text-center font-mono type-ui-xs text-header-faint">{footerText}</footer>}
+          <CommandSearch resp={resp} open={commandSearchOpen} onOpenChange={setCommandSearchOpen} />
+        </div>
+      </div>
+    </CardInteractionModeProvider>
+  );
+}

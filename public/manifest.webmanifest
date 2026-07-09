@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "fab-dashboard",
+  "short_name": "fab-dashboard",
+  "description": "A local-first connector-backed dashboard engine.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#050608",
+  "theme_color": "#0d1024",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

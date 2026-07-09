@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-server",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "headline": "OpenClaw gateway healthy, notes sync fresh.",
+    "tone": "success",
+    "gateway": "online",
+    "memory": "54%",
+    "memoryPct": 54,
+    "disk": "38%",
+    "diskPct": 38,
+    "heartbeat": "quiet",
+    "load": "1.69",
+    "loadHistory": [0.9, 1.2, 1.1, 1.5, 1.7, 1.69],
+    "rows": [
+      { "title": "Gateway", "meta": "online", "text": "OpenClaw gateway and status services responding.", "tone": "success" },
+      { "title": "Notes sync", "meta": "fresh", "text": "Last sync finished 3 minutes ago.", "tone": "success" },
+      { "title": "Updates", "meta": "clean", "text": "No pending maintenance.", "tone": "info" }
+    ]
+  }
+}

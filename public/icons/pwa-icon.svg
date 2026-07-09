@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <title>fab-dashboard app icon</title>
+  <defs>
+    <pattern id="grid" width="256" height="256" patternUnits="userSpaceOnUse">
+      <path d="M256 0H0v256" fill="none" stroke="#f6f7f8" stroke-opacity="0.06" stroke-width="3"/>
+    </pattern>
+  </defs>
+  <rect width="1024" height="1024" fill="#050608"/>
+  <circle cx="512" cy="512" r="304" fill="#121418"/>
+  <circle cx="512" cy="512" r="304" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="4"/>
+  <rect width="1024" height="1024" fill="url(#grid)"/>
+</svg>

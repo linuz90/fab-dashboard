@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-health",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "recovery": "82",
+    "status": "good",
+    "delta": "+6",
+    "sleep": "7h 24m",
+    "steps": "8,420",
+    "stepsPct": 84,
+    "heart": "62 bpm · 68 ms hrv",
+    "trend": [71, 74, 69, 77, 80, 82],
+    "stepsTrend": [6200, 7100, 8400, 9200, 7600, 8420],
+    "hrvTrend": [56, 62, 58, 65, 66, 68],
+    "workouts": [
+      { "title": "Strength", "when": "Yesterday", "text": "Upper body, moderate load." },
+      { "title": "Walk", "when": "Mon", "text": "Steady zone-two walk." },
+      { "title": "Mobility", "when": "Sun", "text": "Short reset session." }
+    ]
+  }
+}

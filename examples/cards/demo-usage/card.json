@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-usage",
+  "connectors": ["demo-usage"],
+  "keywords": ["usage", "limits", "runtime"],
+  "freshness": { "connector": "demo-usage", "label": "sample" },
+  "visual": { "icon": "gauge", "accent": "yellow" },
+  "blocks": [
+    { "type": "text", "text": "Primary", "variant": "caption" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "5h", "icon": "sparkles", "valuePath": "demo-usage.primary5h", "hintPath": "demo-usage.primary5hReset", "progressPath": "demo-usage.primary5hPct", "sparklinePath": "demo-usage.primaryHistory" },
+        { "label": "Week", "icon": "calendar-range", "valuePath": "demo-usage.primaryWeek", "hintPath": "demo-usage.primaryWeekReset", "progressPath": "demo-usage.primaryWeekPct" }
+      ]
+    },
+    { "type": "divider" },
+    { "type": "text", "text": "Agent", "variant": "caption" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "5h", "icon": "bot", "valuePath": "demo-usage.agent5h", "hintPath": "demo-usage.agent5hReset", "progressPath": "demo-usage.agent5hPct", "sparklinePath": "demo-usage.agentHistory" },
+        { "label": "Week", "icon": "calendar-range", "valuePath": "demo-usage.agentWeek", "hintPath": "demo-usage.agentWeekReset", "progressPath": "demo-usage.agentWeekPct" }
+      ]
+    },
+    { "type": "divider" },
+    { "type": "text", "text": "Gateway", "variant": "caption" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Today", "icon": "route", "valuePath": "demo-usage.gatewayToday" },
+        { "label": "This week", "icon": "calendar-days", "valuePath": "demo-usage.gatewayWeek" },
+        { "label": "This month", "icon": "calendar", "valuePath": "demo-usage.gatewayMonth" },
+        { "label": "Cache hit", "icon": "database", "valuePath": "demo-usage.cacheHit", "hint": "good" }
+      ]
+    }
+  ]
+}

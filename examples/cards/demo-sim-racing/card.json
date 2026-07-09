@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-sim-racing",
+  "connectors": ["demo-sim-racing"],
+  "keywords": ["sim racing", "telemetry", "f1 26"],
+  "freshness": { "connector": "demo-sim-racing", "label": "sample" },
+  "visual": { "icon": "gauge", "accent": "red" },
+  "blocks": [
+    { "type": "status", "label": "Readiness", "tonePath": "demo-sim-racing.tone", "messagePath": "demo-sim-racing.readiness", "valuePath": "demo-sim-racing.status" },
+    {
+      "type": "tabs",
+      "id": "sim-tabs",
+      "defaultTab": "next",
+      "persist": true,
+      "tabs": [
+        {
+          "id": "next",
+          "label": "Next",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-sim-racing.next", "icon": "calendar-days", "titlePath": "title", "metaPath": "time", "textPath": "text", "tonePath": "tone", "limit": 4 }
+          ]
+        },
+        {
+          "id": "recent",
+          "label": "Recent",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-sim-racing.recent", "icon": "trophy", "titlePath": "title", "metaPath": "result", "textPath": "text", "tonePath": "tone", "limit": 4 }
+          ]
+        }
+      ]
+    }
+  ]
+}

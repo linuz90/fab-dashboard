@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-calendar",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "today": [
+      { "calendar": "Personal", "tone": "info", "title": "Focus block", "time": "09:30", "text": "" },
+      { "calendar": "Work", "tone": "muted", "title": "Planning sync", "time": "13:00", "text": "" },
+      { "calendar": "Work", "tone": "info", "title": "Design review", "time": "15:30", "text": "" },
+      { "calendar": "Personal", "tone": "warning", "title": "Gym", "time": "19:05", "text": "Leave a little buffer." }
+    ],
+    "next": [
+      { "calendar": "Work", "tone": "muted", "title": "Roadmap review", "time": "Thu 10:00", "text": "" },
+      { "calendar": "Personal", "tone": "info", "title": "Dinner", "time": "Thu 20:00", "text": "" },
+      { "calendar": "Personal", "tone": "warning", "title": "Travel window", "time": "Fri 12:30", "text": "Check route before leaving." }
+    ]
+  }
+}

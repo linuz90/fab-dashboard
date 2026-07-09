@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-tasks",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "today": "7",
+    "stale": "1",
+    "items": [
+      { "title": "Review dashboard configuration", "project": "Work", "due": "today", "text": "Check the latest card definitions before sharing.", "done": false },
+      { "title": "Triage connector warnings", "project": "Work", "due": "today", "text": "Make sure stale sources are visible and scoped.", "done": false },
+      { "title": "Write weekly note", "project": "Personal", "due": "today", "text": "Capture decisions, follow-ups, and open questions.", "done": false, "stale": true },
+      { "title": "Renew local backup", "project": "Personal", "due": "tonight", "text": "Confirm the latest snapshot is available offline.", "done": false },
+      { "title": "Archive completed tasks", "project": "Personal", "due": "done", "text": "Keep the sample list tidy.", "done": true }
+    ]
+  }
+}

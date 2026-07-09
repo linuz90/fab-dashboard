@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-calendar",
+  "connectors": ["demo-calendar"],
+  "keywords": ["calendar", "agenda", "events"],
+  "freshness": { "connector": "demo-calendar", "label": "sample" },
+  "visual": { "icon": "calendar-days", "accent": "purple" },
+  "blocks": [
+    {
+      "type": "tabs",
+      "id": "calendar-tabs",
+      "defaultTab": "today",
+      "persist": true,
+      "tabs": [
+        {
+          "id": "today",
+          "label": "Today",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-calendar.today", "sectionPath": "calendar", "titlePath": "title", "metaPath": "time", "textPath": "text", "tonePath": "tone", "limit": 6 }
+          ]
+        },
+        {
+          "id": "next",
+          "label": "Next",
+          "blocks": [
+            { "type": "list", "variant": "timeline", "path": "demo-calendar.next", "sectionPath": "calendar", "titlePath": "title", "metaPath": "time", "textPath": "text", "tonePath": "tone", "limit": 6 }
+          ]
+        }
+      ]
+    }
+  ]
+}

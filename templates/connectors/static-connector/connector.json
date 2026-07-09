@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-source",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "value": "42",
+    "status": "good",
+    "delta": "+6%",
+    "history": [28, 31, 35, 33, 39, 42],
+    "primary": "online",
+    "primaryHint": "now",
+    "primaryPct": 72,
+    "secondary": "steady",
+    "secondaryTone": "success",
+    "items": [
+      {
+        "title": "Example feed item",
+        "meta": "now",
+        "text": "This static connector matches the basic-card template.",
+        "icon": "message-square",
+        "tone": "info",
+        "chips": ["demo"],
+        "count": "3"
+      }
+    ]
+  }
+}

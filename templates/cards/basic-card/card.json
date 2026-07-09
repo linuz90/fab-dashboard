@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "type": "basic-card",
+  "connectors": ["basic-source"],
+  "keywords": ["example"],
+  "visual": { "icon": "layout-dashboard", "accent": "blue" },
+  "freshness": { "connector": "basic-source", "label": "source" },
+  "errorHint": "Create a connector named basic-source or update this card's connectors list.",
+  "blocks": [
+    { "type": "metric", "label": "Value", "valuePath": "basic-source.value", "pillPath": "basic-source.status", "deltaPath": "basic-source.delta", "sparklinePath": "basic-source.history" },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Primary", "valuePath": "basic-source.primary", "icon": "activity", "hintPath": "basic-source.primaryHint", "progressPath": "basic-source.primaryPct" },
+        { "label": "Secondary", "valuePath": "basic-source.secondary", "icon": "circle-dot", "valueTonePath": "basic-source.secondaryTone" }
+      ]
+    },
+    { "type": "list", "path": "basic-source.items", "variant": "feed", "titlePath": "title", "metaPath": "meta", "textPath": "text", "iconPath": "icon", "fallbackIcon": "message-square", "tonePath": "tone", "chipsPath": "chips", "countPath": "count", "countIcon": "heart", "limit": 5 }
+  ]
+}

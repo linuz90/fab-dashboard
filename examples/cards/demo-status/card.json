@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "type": "demo-status",
+  "connectors": ["demo-system"],
+  "keywords": ["now", "mac", "health"],
+  "freshness": { "connector": "demo-system", "label": "sample" },
+  "visual": { "icon": "monitor", "accent": "blue" },
+  "errorHint": "Check the demo-system connector.",
+  "blocks": [
+    { "type": "status", "label": "Focus", "tonePath": "demo-system.tone", "messagePath": "demo-system.summary", "valuePath": "demo-system.focus", "visibleWhen": { "path": "demo-system.showFocusStatus", "equals": true } },
+    {
+      "type": "rows",
+      "rows": [
+        { "label": "Next check", "icon": "circle-dot", "valuePath": "demo-system.nextCheck" },
+        { "label": "Screen", "icon": "monitor", "valuePath": "demo-system.screen" },
+        { "label": "Team chat", "icon": "message-square", "valuePath": "demo-system.chat" },
+        { "label": "Battery", "icon": "battery-charging", "valuePath": "demo-system.battery" },
+        { "label": "CPU", "icon": "cpu", "valuePath": "demo-system.cpu", "progressPath": "demo-system.cpuPct", "sparklinePath": "demo-system.history" },
+        { "label": "Memory", "icon": "memory-stick", "valuePath": "demo-system.memory", "progressPath": "demo-system.memoryPct" },
+        { "label": "Disk", "icon": "hard-drive", "valuePath": "demo-system.disk", "progressPath": "demo-system.diskPct" }
+      ]
+    },
+    { "type": "list", "variant": "timeline", "path": "demo-system.checks", "titlePath": "title", "metaPath": "meta", "textPath": "text", "tonePath": "tone", "limit": 2 }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-portfolio",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "movement": "+1.8%",
+    "delta": "30d",
+    "history": [100, 101, 99, 102, 104, 103, 105, 106],
+    "stocks": "58%",
+    "stocksPct": 58,
+    "crypto": "21%",
+    "cryptoPct": 21,
+    "cash": "14%",
+    "cashPct": 14,
+    "gold": "7%",
+    "goldPct": 7,
+    "allocation": [
+      { "title": "Stocks", "pct": "58%", "text": "Broad-market ETFs." },
+      { "title": "Crypto", "pct": "21%", "text": "BTC-led allocation." },
+      { "title": "Cash", "pct": "14%", "text": "Operating buffer." },
+      { "title": "Gold", "pct": "7%", "text": "Small hedge." }
+    ]
+  }
+}

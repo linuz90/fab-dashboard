@@ -1,0 +1,867 @@
+@layer theme, base, components, theme-overrides, utilities;
+@import "tailwindcss";
+
+@import "./themes/apple.css";
+@import "./themes/classic-macos.css";
+@import "./themes/kingdom.css";
+@import "./themes/e-ink.css";
+@import "./themes/live.css";
+
+/* System-auto light/dark: every color is a light-dark() token, no hardcoded
+   hex in components (design direction confirmed 2026-07-04).
+
+   Themes: the @theme block below is the default "basic" token contract.
+   Alternative themes live in src/themes/*.css and override the same custom
+   properties under :root[data-theme="..."]. Add theme metadata in
+   src/shared/themes.ts and follow docs/themes.md. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, monospace;
+
+  --color-canvas: light-dark(#fafafa, #0a0a0a);
+  --color-card: light-dark(#ffffff, #101012);
+  --color-border: light-dark(#e4e4e7, #26262b);
+  --color-fg: light-dark(#18181b, #ececf0);
+  --color-muted: light-dark(#71717a, #9b9ba4);
+  --color-faint: light-dark(#a1a1aa, #62626b);
+
+  /* Header bar foreground: defaults to the body fg/faint, but a theme can tune
+     it independently of card text for backgrounds that differ from cards. */
+  --color-header-fg: var(--color-fg);
+  --color-header-faint: var(--color-faint);
+  --color-header-border: var(--color-border);
+
+  --color-success: light-dark(#16a34a, #4ade80);
+  --color-warning: light-dark(#b45309, #fbbf24);
+  --color-danger: light-dark(#dc2626, #f87171);
+  --color-success-soft: light-dark(#f0fdf4, #0d2818);
+  --color-warning-soft: light-dark(#fffbeb, #2e2008);
+  --color-danger-soft: light-dark(#fef2f2, #2e0f0f);
+
+  /* Neutral-positive fill for goal/usage progress bars (not a status color:
+     success/warning/danger stay reserved for actual state). */
+  --color-accent: light-dark(#3b82f6, #60a5fa);
+
+  /* Per-calendar accent dots (CalendarCard); assigned by name hash, muted on
+     purpose so they read as identity hints, not status. */
+  --color-cal-1: light-dark(#60a5fa, #3b82f6);
+  --color-cal-2: light-dark(#a78bfa, #8b5cf6);
+  --color-cal-3: light-dark(#34d399, #10b981);
+  --color-cal-4: light-dark(#fbbf24, #d97706);
+  --color-cal-5: light-dark(#f9a8d4, #db2777);
+  --color-cal-6: light-dark(#2dd4bf, #0d9488);
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Dashboard typography intentionally has one tight small-type band. The
+     smallest steps stay dense, but sit on whole-pixel sizes so metadata,
+     secondary text, and section labels remain readable in e-ink dark mode. */
+  --type-ui-2xs: 0.6875rem; /* 11px */
+  --type-ui-xs: 0.75rem; /* 12px */
+  --type-ui-sm: 0.8125rem; /* 13px */
+  --type-ui-md: 0.875rem; /* 14px */
+  --type-ui-2xs-line: 0.875rem;
+  --type-ui-xs-line: 1rem;
+  --type-ui-sm-line: 1.0625rem;
+  --type-ui-md-line: 1.125rem;
+  --type-ui-caps-tracking: 0.06em;
+
+  /* Card chrome is themeable independently of colors: basic = hairline
+     border, tight radius; apple = borderless squircle with a soft shadow. */
+  --card-radius: 0.75rem;
+  --card-corner-shape: round;
+  --card-border-width: 0.5px;
+  --card-padding: 1rem;
+  --card-shadow: none;
+  /* Frosted-glass blur behind the card fill; only the live theme opts in, so
+     the default is none (cheap: backdrop-filter: none is a no-op). */
+  --card-backdrop: none;
+  /* Vertical rhythm inside a card and the masonry gap between cards; apple
+     runs both roomier. */
+  --card-gap: 0.75rem;
+  --layout-gap: 0.75rem;
+
+  --focus-ring-width: 2px;
+  --focus-ring-style: solid;
+  --focus-ring-offset: 3px;
+  --focus-ring-color: color-mix(in srgb, var(--color-accent) 68%, transparent);
+  --focus-ring-halo: color-mix(in srgb, var(--color-accent) 16%, transparent);
+
+  --app-titlebar-offset: 0px;
+  --app-shell-padding-top: max(2rem, env(safe-area-inset-top));
+  --app-shell-padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-canvas);
+}
+
+body {
+  min-width: 320px;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: var(--color-canvas);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@layer base {
+  :where(
+      a,
+      button,
+      input,
+      select,
+      textarea,
+      summary,
+      [role="button"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="menuitemradio"],
+      [tabindex]:not([tabindex="-1"])
+    ):focus {
+    outline: none;
+  }
+
+  :where(
+      a,
+      button,
+      input,
+      select,
+      textarea,
+      summary,
+      [role="button"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="menuitemradio"],
+      [tabindex]:not([tabindex="-1"])
+    ):focus-visible {
+    outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    box-shadow: 0 0 0 calc(var(--focus-ring-offset) + 1px) var(--focus-ring-halo);
+  }
+
+  :where(
+      button:disabled,
+      input:disabled,
+      select:disabled,
+      textarea:disabled,
+      [aria-disabled="true"]
+    ):focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.eink-device-time,
+.eink-device-weather,
+.eink-device-battery {
+  display: none;
+}
+
+.eink-battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.eink-battery-shell {
+  position: relative;
+  display: inline-flex;
+  width: 1.45rem;
+  height: 0.72rem;
+  border: 1px solid var(--color-header-fg);
+  padding: 1px;
+}
+
+.eink-battery-shell::after {
+  content: "";
+  position: absolute;
+  top: 0.17rem;
+  right: -0.22rem;
+  width: 0.16rem;
+  height: 0.28rem;
+  border: 1px solid var(--color-header-fg);
+  border-left: 0;
+}
+
+.eink-battery-fill {
+  height: 100%;
+  background:
+    linear-gradient(90deg, var(--color-header-fg) 50%, transparent 0) 0 0 / 3px 100%,
+    var(--color-header-fg);
+  opacity: 0.8;
+}
+
+.eink-battery-percent {
+  min-width: 2.1rem;
+  text-align: right;
+}
+
+.app-scroll {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100svh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--dashboard-layout-max-width, 1400px);
+  min-height: 100%;
+  padding-top: var(--app-shell-padding-top);
+  padding-bottom: var(--app-shell-padding-bottom);
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (display-mode: window-controls-overlay) {
+  :root {
+    --app-titlebar-offset: calc(env(titlebar-area-y, 0px) + env(titlebar-area-height, 0px));
+    --app-shell-padding-top: max(2rem, calc(env(safe-area-inset-top) + var(--app-titlebar-offset) + 0.75rem));
+  }
+
+  .app-header {
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+
+  .app-header
+    :is(
+      button,
+      a,
+      input,
+      select,
+      textarea,
+      [role="button"],
+      [role="dialog"],
+      [role="menu"],
+      [role="menuitem"],
+      [role="menuitemradio"],
+      .dashboard-settings-backdrop,
+      .dashboard-settings-panel
+    ) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+}
+
+@media (width >= 48rem) {
+  .app-shell {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
+}
+
+@layer utilities {
+  /* `type-*` avoids tailwind-merge's text-color conflict group. The line-height
+     guard keeps dense rows compact while leaving explicit leading-* classes in
+     charge for prose/error text. */
+  .type-ui-2xs {
+    font-size: var(--type-ui-2xs);
+  }
+
+  .type-ui-2xs:not([class*="leading-"]) {
+    line-height: var(--type-ui-2xs-line);
+  }
+
+  .type-ui-xs {
+    font-size: var(--type-ui-xs);
+  }
+
+  .type-ui-xs:not([class*="leading-"]) {
+    line-height: var(--type-ui-xs-line);
+  }
+
+  .type-ui-sm {
+    font-size: var(--type-ui-sm);
+  }
+
+  .type-ui-sm:not([class*="leading-"]) {
+    line-height: var(--type-ui-sm-line);
+  }
+
+  .type-ui-md {
+    font-size: var(--type-ui-md);
+  }
+
+  .type-ui-md:not([class*="leading-"]) {
+    line-height: var(--type-ui-md-line);
+  }
+
+  .tracking-ui-caps {
+    letter-spacing: var(--type-ui-caps-tracking);
+  }
+}
+
+/* Shared card chrome (CardShell + SkeletonCard); driven by the theme vars
+   above so themes can swap border/shadow/radius without component changes. */
+@layer components {
+  .card-surface a {
+    border-radius: 0.45rem;
+  }
+
+  .card-surface a:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .theme-selector [role="menuitemradio"]:focus-visible {
+    outline-offset: -2px;
+    background: color-mix(in srgb, var(--color-fg) 6%, transparent);
+    color: var(--color-fg);
+    box-shadow: inset 0 0 0 1px var(--focus-ring-color);
+  }
+
+  .dashboard-settings-backdrop {
+    animation: dashboard-settings-backdrop-in 70ms ease-out both;
+  }
+
+  .dashboard-settings-backdrop[data-state="closed"] {
+    animation: dashboard-settings-backdrop-out 70ms ease-in both;
+    pointer-events: none;
+  }
+
+  .dashboard-settings-panel {
+    transform-origin: top right;
+    animation: dashboard-settings-panel-in 110ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .dashboard-settings-backdrop[data-state="closed"] .dashboard-settings-panel {
+    animation: dashboard-settings-panel-out 90ms cubic-bezier(0.7, 0, 0.84, 0) both;
+  }
+
+  .dashboard-command-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: color-mix(in srgb, var(--color-canvas) 72%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    animation: dashboard-command-overlay-in 90ms ease-out both;
+  }
+
+  .dashboard-command-overlay[data-state="closed"] {
+    animation: dashboard-command-overlay-out 120ms ease-in both;
+    pointer-events: none;
+  }
+
+  .dashboard-command-dialog {
+    position: fixed;
+    top: max(3.5rem, calc(env(safe-area-inset-top) + 13svh));
+    left: 50%;
+    z-index: 81;
+    width: min(34rem, calc(100vw - 2rem));
+    max-height: min(78svh, 48rem);
+    color: var(--color-fg);
+    outline: none;
+    transform-origin: 50% 0;
+    animation: dashboard-command-dialog-in 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .dashboard-command-dialog[data-state="closed"] {
+    animation: dashboard-command-dialog-out 120ms cubic-bezier(0.7, 0, 0.84, 0) both;
+    pointer-events: none;
+  }
+
+  .dashboard-command-root {
+    display: flex;
+    max-height: inherit;
+    flex-direction: column;
+    gap: 0.65rem;
+    outline: none;
+  }
+
+  .dashboard-command-input-wrap {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    gap: 0.7rem;
+    border: var(--card-border-width) solid var(--card-border-color, var(--color-border));
+    border-radius: min(var(--card-radius), 1rem);
+    background: var(--color-card);
+    padding: 0 0.9rem;
+    box-shadow: var(--card-shadow);
+    -webkit-backdrop-filter: var(--card-backdrop);
+    backdrop-filter: var(--card-backdrop);
+  }
+
+  .dashboard-command-input-wrap:focus-within {
+    border-color: color-mix(in srgb, var(--color-accent) 42%, var(--card-border-color, var(--color-border)));
+    box-shadow:
+      var(--card-shadow),
+      0 0 0 3px var(--focus-ring-halo);
+  }
+
+  .dashboard-command-search-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex: none;
+    color: var(--color-faint);
+  }
+
+  .dashboard-command-input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: var(--color-fg);
+    font: inherit;
+    font-size: var(--type-ui-md);
+    line-height: var(--type-ui-md-line);
+    outline: none;
+  }
+
+  .dashboard-command-input:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .dashboard-command-input::placeholder {
+    color: var(--color-faint);
+  }
+
+  @media (width < 48rem), (hover: none) and (pointer: coarse) {
+    .dashboard-command-input {
+      font-size: 1rem;
+      line-height: 1.25rem;
+    }
+  }
+
+  .dashboard-command-preview {
+    max-height: min(48svh, 34rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: dashboard-command-preview-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .dashboard-command-preview-content {
+    pointer-events: none;
+  }
+
+  .dashboard-command-list {
+    max-height: min(56svh, 24rem);
+    overflow-y: auto;
+    border: var(--card-border-width) solid var(--card-border-color, var(--color-border));
+    border-radius: min(var(--card-radius), 0.9rem);
+    background: var(--color-card);
+    padding: 0.3rem;
+    box-shadow: var(--card-shadow);
+    -webkit-backdrop-filter: var(--card-backdrop);
+    backdrop-filter: var(--card-backdrop);
+  }
+
+  .dashboard-command-list [cmdk-list-sizer] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .dashboard-command-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.75rem;
+    border-radius: 0.65rem;
+    padding: 0.55rem 0.65rem;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+
+  .dashboard-command-item[aria-selected="true"] {
+    background: color-mix(in srgb, var(--color-fg) 7%, transparent);
+    color: var(--color-fg);
+  }
+
+  .dashboard-command-item-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--type-ui-sm);
+    line-height: var(--type-ui-sm-line);
+  }
+
+  .dashboard-command-item-detail {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--type-ui-2xs);
+    line-height: var(--type-ui-2xs-line);
+    color: var(--color-faint);
+  }
+
+  .dashboard-command-empty {
+    padding: 0.65rem;
+    font-family: var(--font-mono);
+    font-size: var(--type-ui-xs);
+    line-height: var(--type-ui-xs-line);
+    color: var(--color-faint);
+  }
+
+  .tab-pills {
+    max-width: 100%;
+    gap: 0.125rem;
+    margin-block: 0.125rem 0.25rem;
+    border: 0.5px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.125rem;
+    background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  }
+
+  .tab-pill {
+    min-height: 1.45rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    color: var(--color-faint);
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .tab-pill:hover {
+    color: var(--color-fg);
+  }
+
+  .tab-pill-active {
+    background: var(--color-fg);
+    color: var(--color-canvas);
+  }
+
+  .card-surface {
+    background: var(--color-card);
+    --card-local-accent: var(--color-accent);
+    /* --card-border-color lets a theme give the card outline its own color
+       without repainting the inner border-t separators (which use
+       --color-border directly). */
+    border: var(--card-border-width) solid var(--card-border-color, var(--color-border));
+    border-radius: var(--card-radius);
+    corner-shape: var(--card-corner-shape);
+    padding: var(--card-padding);
+    box-shadow: var(--card-shadow);
+    -webkit-backdrop-filter: var(--card-backdrop);
+    backdrop-filter: var(--card-backdrop);
+  }
+
+  .card-surface[data-card-accent="green"] {
+    --card-local-accent: var(--color-success);
+  }
+
+  .card-surface[data-card-accent="yellow"] {
+    --card-local-accent: var(--color-warning);
+  }
+
+  .card-surface[data-card-accent="red"] {
+    --card-local-accent: var(--color-danger);
+  }
+
+  .card-surface[data-card-accent="purple"] {
+    --card-local-accent: var(--color-cal-2);
+  }
+
+  .card-surface[data-card-accent="pink"] {
+    --card-local-accent: var(--color-cal-5);
+  }
+
+  .card-surface[data-card-accent="teal"] {
+    --card-local-accent: var(--color-cal-6);
+  }
+
+  .card-surface[data-card-accent="muted"] {
+    --card-local-accent: var(--color-faint);
+  }
+
+  .card-surface[data-card-accent] {
+    border-color: color-mix(in srgb, var(--card-local-accent) 18%, var(--card-border-color, var(--color-border)));
+  }
+
+  .card-title-icon {
+    color: color-mix(in srgb, var(--card-local-accent) 74%, var(--color-faint));
+  }
+
+  .dashboard-card-frame {
+    display: block;
+    width: 100%;
+    transform-origin: 50% 24px;
+    isolation: isolate;
+  }
+
+  .dashboard-card-frame-enter {
+    animation: dashboard-card-enter 320ms cubic-bezier(0.16, 1, 0.3, 1) var(--card-enter-delay, 0ms) both;
+  }
+
+  .dashboard-card-frame-refreshing {
+    z-index: 1;
+  }
+
+  .dashboard-card-command-target {
+    position: relative;
+    z-index: 2;
+  }
+
+  .dashboard-card-command-target::after {
+    content: "";
+    position: absolute;
+    inset: -0.45rem;
+    border: max(1px, var(--card-border-width)) solid color-mix(in srgb, var(--color-accent) 58%, var(--color-fg));
+    border-radius: calc(var(--card-radius) + 0.45rem);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-canvas) 70%, transparent),
+      0 0 0.9rem color-mix(in srgb, var(--color-accent) 18%, transparent);
+    pointer-events: none;
+    animation: dashboard-command-target-ring 1800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .dashboard-card-command-target > .dashboard-card-frame {
+    animation: dashboard-command-target-pop 1800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card-surface :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+      opacity: 0;
+      transition: opacity 120ms ease-out;
+    }
+
+    .card-surface:is(:hover, :focus-within) :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-surface :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+      transition: none;
+    }
+  }
+
+  .music-waveform {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5px;
+    height: 0.7rem;
+    color: var(--color-accent);
+  }
+
+  .music-waveform > span {
+    width: 2px;
+    height: 35%;
+    border-radius: 999px;
+    background: currentColor;
+    animation: music-waveform-bar 820ms ease-in-out infinite;
+  }
+
+  .music-waveform > span:nth-child(2) {
+    animation-delay: -260ms;
+  }
+
+  .music-waveform > span:nth-child(3) {
+    animation-delay: -520ms;
+  }
+
+  .music-waveform > span:nth-child(4) {
+    animation-delay: -120ms;
+  }
+
+  .music-progress {
+    background: currentColor;
+    color: var(--color-muted);
+    transition: width 1s linear;
+  }
+
+  .music-progress-active {
+    color: var(--color-accent);
+  }
+
+  @keyframes dashboard-settings-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes dashboard-settings-backdrop-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes dashboard-settings-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35rem) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes dashboard-settings-panel-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(0.25rem) scale(0.96);
+    }
+  }
+
+  @keyframes dashboard-command-overlay-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes dashboard-command-overlay-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes dashboard-command-dialog-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 0.35rem) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  @keyframes dashboard-command-dialog-out {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -0.3rem) scale(0.97);
+    }
+  }
+
+  @keyframes dashboard-command-preview-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.982);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes dashboard-command-target-ring {
+    0% {
+      opacity: 0;
+      transform: scale(0.992);
+    }
+    12% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    58% {
+      opacity: 0.78;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.018);
+    }
+  }
+
+  @keyframes dashboard-command-target-pop {
+    0% {
+      transform: scale(1);
+    }
+    16% {
+      transform: scale(1.012);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes dashboard-card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.982);
+      filter: blur(3px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes music-waveform-bar {
+    0%,
+    100% {
+      height: 35%;
+      opacity: 0.55;
+    }
+    45% {
+      height: 100%;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .music-waveform > span {
+      animation: none;
+      height: 65%;
+    }
+
+    .music-progress {
+      transition: none;
+    }
+
+    .dashboard-card-frame-enter {
+      animation: none;
+    }
+
+    .dashboard-card-command-target::after,
+    .dashboard-card-command-target > .dashboard-card-frame {
+      animation-duration: 1ms;
+    }
+
+    .dashboard-command-overlay,
+    .dashboard-command-dialog,
+    .dashboard-command-preview {
+      animation-duration: 1ms;
+    }
+
+    .dashboard-settings-backdrop,
+    .dashboard-settings-backdrop[data-state="closed"],
+    .dashboard-settings-panel,
+    .dashboard-settings-backdrop[data-state="closed"] .dashboard-settings-panel {
+      animation-duration: 1ms;
+    }
+  }
+}

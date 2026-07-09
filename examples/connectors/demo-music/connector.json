@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-music",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "tracks": [
+      { "title": "Paper Signal", "artist": "The Static Fields", "status": "playing now · Studio", "progressPct": 55, "art": "" },
+      { "title": "Window Seat", "artist": "Mira North", "status": "played 20h ago", "art": "" },
+      { "title": "Soft Circuits", "artist": "Blue Relay", "status": "played 2d ago", "art": "" },
+      { "title": "Night Mode", "artist": "Solar Archive", "status": "played 2d ago", "art": "" }
+    ],
+    "repeat": "on repeat · The Static Fields, Blue Relay, Solar Archive",
+    "recent": [
+      { "title": "Paper Signal", "artist": "The Static Fields", "text": "Now playing." },
+      { "title": "Window Seat", "artist": "Mira North", "text": "Recent track." },
+      { "title": "Soft Circuits", "artist": "Blue Relay", "text": "Recent track." }
+    ],
+    "artists": [
+      { "title": "The Static Fields", "meta": "top", "text": "This month." },
+      { "title": "Blue Relay", "meta": "top", "text": "This month." }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-source",
+  "kind": "http",
+  "ttlSeconds": 60,
+  "persist": true,
+  "url": "http://127.0.0.1:7890/example.json",
+  "method": "GET",
+  "timeoutMs": 8000,
+  "maxBytes": 1000000,
+  "headers": {},
+  "auth": { "type": "none" }
+}

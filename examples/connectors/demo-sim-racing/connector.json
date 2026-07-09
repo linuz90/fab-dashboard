@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-sim-racing",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "tone": "success",
+    "status": "ready",
+    "next": [
+      { "title": "Spa practice", "time": "Tonight", "text": "F1 26, dry setup.", "tone": "info" },
+      { "title": "Monza league race", "time": "Sat", "text": "Medium tyre start likely.", "tone": "warning" }
+    ],
+    "recent": [
+      { "title": "Italy / Monza", "result": "P4", "text": "Quali P1, race P4.", "tone": "success" },
+      { "title": "Silverstone", "result": "P1", "text": "Good wet pace.", "tone": "success" },
+      { "title": "Austria / Spielberg", "result": "P6", "text": "Contact review pending.", "tone": "warning" }
+    ],
+    "readiness": "Telemetry ready; brake bias note pinned."
+  }
+}

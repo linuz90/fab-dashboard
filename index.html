@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="A local-first JSON-card dashboard engine." />
+    <meta name="application-name" content="fab-dashboard" />
+    <meta name="theme-color" content="#eaf5fd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1024" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="fab-dashboard" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <title>fab-dashboard</title>
+    <script>
+      try {
+        var h = new Date().getHours();
+        document.documentElement.dataset.localHour = String(h);
+        document.documentElement.dataset.timePhase =
+          h < 5 ? "night" : h < 8 ? "dawn" : h < 12 ? "morning"
+          : h < 17 ? "day" : h < 20 ? "dusk" : h < 22 ? "twilight" : "night";
+        delete document.documentElement.dataset.livePhase;
+
+        var t = localStorage.getItem("dashboard-theme");
+        if (t === "claude") {
+          t = "basic";
+          localStorage.setItem("dashboard-theme", t);
+        }
+        if (["basic", "apple", "classic-macos", "kingdom", "e-ink", "live"].indexOf(t) !== -1) {
+          document.documentElement.dataset.theme = t;
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

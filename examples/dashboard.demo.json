@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "title": "fab-dashboard demo",
+  "refreshSeconds": 30,
+  "appearance": {
+    "defaultTheme": "e-ink",
+    "themes": ["e-ink", "basic", "apple", "classic-macos", "kingdom", "live"]
+  },
+  "header": {
+    "widgets": [
+      { "id": "weather", "kind": "weather", "connector": "demo-system", "path": "demo-system.weather" },
+      { "id": "focus", "kind": "label", "connector": "demo-system", "icon": "moon", "labelPath": "demo-system.focus", "tooltipPath": "demo-system.summary", "tonePath": "demo-system.tone" }
+    ]
+  },
+  "cards": [
+    {
+      "id": "tasks",
+      "type": "demo-tasks",
+      "title": "Tasks",
+      "size": "half",
+      "keywords": ["todo", "tasks", "today", "reminders"]
+    },
+    {
+      "id": "fitness",
+      "type": "demo-health",
+      "title": "Health",
+      "size": "half",
+      "keywords": ["health", "recovery", "sleep", "steps", "workout"]
+    },
+    {
+      "id": "calendar",
+      "type": "demo-calendar",
+      "title": "Calendar",
+      "size": "half",
+      "keywords": ["agenda", "events", "calendar", "gym"]
+    },
+    {
+      "id": "sim-racing",
+      "type": "demo-sim-racing",
+      "title": "Sim Racing",
+      "size": "half",
+      "keywords": ["sim racing", "telemetry", "f1 26"]
+    },
+    {
+      "id": "metrics",
+      "type": "demo-work",
+      "title": "My SaaS",
+      "size": "half",
+      "keywords": ["saas", "mrr", "arr", "business"]
+    },
+    {
+      "id": "bookmarks",
+      "type": "demo-bookmarks",
+      "title": "Bookmarks",
+      "size": "half",
+      "keywords": ["links", "bookmarks", "reading"]
+    },
+    {
+      "id": "portfolio",
+      "type": "demo-portfolio",
+      "title": "Portfolio",
+      "size": "half",
+      "keywords": ["portfolio", "finance", "allocation"]
+    },
+    {
+      "id": "server",
+      "type": "demo-server",
+      "title": "OpenClaw",
+      "size": "half",
+      "keywords": ["openclaw", "services", "gateway", "health"]
+    },
+    {
+      "id": "f1",
+      "type": "demo-racing",
+      "title": "F1",
+      "size": "half",
+      "keywords": ["f1", "formula", "standings", "motorsport"]
+    },
+    {
+      "id": "system",
+      "type": "demo-status",
+      "title": "System",
+      "size": "half",
+      "keywords": ["mac", "system", "doctor", "cpu", "memory", "disk"]
+    },
+    {
+      "id": "activity",
+      "type": "demo-digest",
+      "title": "Activity",
+      "size": "half",
+      "keywords": ["work", "digest", "channels", "messages"]
+    },
+    {
+      "id": "usage",
+      "type": "demo-usage",
+      "title": "Usage",
+      "size": "half",
+      "keywords": ["usage", "limits", "runtime"]
+    },
+    {
+      "id": "music",
+      "type": "demo-music",
+      "title": "Music",
+      "size": "half",
+      "keywords": ["music", "media", "tracks"]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "fab-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first, connector-backed personal dashboard engine.",
+  "license": "MIT",
+  "author": "Fabrizio Rinaldi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linuz90/fab-dashboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/linuz90/fab-dashboard/issues"
+  },
+  "homepage": "https://github.com/linuz90/fab-dashboard#readme",
+  "keywords": [
+    "dashboard",
+    "personal-dashboard",
+    "local-first",
+    "connectors",
+    "cards",
+    "react",
+    "bun",
+    "vite"
+  ],
+  "type": "module",
+  "packageManager": "bun@1.3.13",
+  "bin": {
+    "fab-dashboard": "./bin/fab-dashboard"
+  },
+  "scripts": {
+    "dev": "bun run scripts/dev.ts",
+    "start": "bun run server.ts",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "create-demo-gif": "bun run scripts/create-demo-gif.ts",
+    "cli": "bun run src/cli.ts",
+    "validate": "bun run src/cli.ts validate",
+    "doctor": "bun run src/cli.ts doctor"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@tanstack/react-query": "^5.101.2",
+    "border-beam": "^1.2.0",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "lucide-react": "^0.525.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/bun": "^1.2.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "playwright": "^1.61.1",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0"
+  }
+}

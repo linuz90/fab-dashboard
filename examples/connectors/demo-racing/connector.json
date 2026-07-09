@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "demo-racing",
+  "kind": "static",
+  "ttlSeconds": 0,
+  "persist": false,
+  "data": {
+    "drivers": [
+      { "name": "Piastri", "team": "McLaren", "points": "234" },
+      { "name": "Norris", "team": "McLaren", "points": "226" },
+      { "name": "Verstappen", "team": "Red Bull", "points": "198" },
+      { "name": "Leclerc", "team": "Ferrari", "points": "156" }
+    ],
+    "constructors": [
+      { "name": "McLaren", "team": "Papaya", "points": "460" },
+      { "name": "Ferrari", "team": "Rosso", "points": "292" },
+      { "name": "Red Bull", "team": "Navy", "points": "271" }
+    ],
+    "weekend": [
+      { "name": "FP1", "when": "Fri 12:30", "state": "done", "tone": "muted" },
+      { "name": "Qualifying", "when": "Sat 16:00", "state": "next", "tone": "warning" },
+      { "name": "Race", "when": "Sun 15:00", "state": "later", "tone": "info" }
+    ],
+    "readiness": "Telemetry rig ready for Spa. Last setup loaded."
+  }
+}
