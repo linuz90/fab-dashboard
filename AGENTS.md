@@ -41,6 +41,12 @@ Ignored/outside repo: user `dashboard.json`, user cards/connectors, `.env`, secr
 
 Use `local/` only for temporary development homes, demos, branch-local staging, or test fixtures. It is ignored by design, but it is not the default place for a user's real dashboard when `~/.config/fab-dashboard` is available.
 
+## Local Setup Note
+
+Agents should treat `$FAB_DASHBOARD_HOME/README.md` as the user's private operating note for this dashboard. It is outside the public repo and may describe how the dashboard is served, which service manager owns it, Tailscale/private URLs, non-secret environment variable names, restart commands, companion local APIs, and refresh jobs that feed connectors.
+
+When inspecting a real dashboard, run `bun run cli doctor --json` and read `setupReadme` if `setupReadmeExists` is true. When creating or changing a service, Tailscale Serve setup, trusted origin, local companion API, refresh job, or important local path, create or update this note. Keep secrets and tokens out of it; reference secret locations such as `$FAB_DASHBOARD_HOME/.env` instead.
+
 ## Public Repo Boundary
 
 This repository is the public, reusable dashboard engine. Agents may edit tracked repo files when the user asks for behavior that benefits the engine or other users: new generic block primitives, connector kinds, schema/runtime improvements, validation, docs, safe templates, or safe public-demo examples suitable for a PR.
@@ -52,6 +58,8 @@ Keep user-specific dashboards in `$FAB_DASHBOARD_HOME`, not in tracked files. Do
 When adding or modifying a card, use `.agents/skills/create-card` and read [docs/config.md](docs/config.md) for schema/block details. If a user says "tile" or "widget", translate that to card terminology.
 
 Before proposing or changing a real dashboard card, inspect the active config home with `bun run cli doctor --json`, then read the active `$FAB_DASHBOARD_HOME/dashboard.json` and relevant existing card/connector definitions. Preserve layout/order, visual density, header widgets, connector reuse, and id/type uniqueness. Use `bun run cli doctor --fetch` only when connector health diagnostics are needed, because it may call local commands or remote APIs.
+
+Also read the local setup note reported by `doctor --json` when it exists, especially before adding cards that depend on companion services, scheduled snapshots, command connectors, or private APIs.
 
 Every real card should have a connector and live under `$FAB_DASHBOARD_HOME`, usually `~/.config/fab-dashboard`. Ask/confirm unclear data sources, credentials, and local paths; do not infer sensitive company/account/service choices from ambient context. Do not hardcode personal/live values in card JSON, commit secrets or private scripts, or add repo source just for a private card unless the card reveals a missing reusable engine capability.
 
@@ -67,7 +75,9 @@ When the user asks to access the dashboard from other devices, install it on mob
 
 - Keep `FAB_DASHBOARD_HOST=127.0.0.1` unless the user explicitly needs another bind address. Tailscale Serve can proxy the local port, so binding to all interfaces is usually unnecessary.
 - If the tailnet URL is used in a browser, include its hostname in `FAB_DASHBOARD_ALLOWED_HOSTS`, for example `localhost,127.0.0.1,example.tailnet.ts.net`. Set `FAB_DASHBOARD_PUBLIC_ORIGIN` when documenting or configuring a known public/tailnet origin.
+- If the user wants in-browser settings writes through a private Tailscale Serve URL, set `FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS` to the exact origin, for example `https://example.tailnet.ts.net`, while keeping the dashboard bound to localhost. Do not enable trusted config origins for Tailscale Funnel or unauthenticated public proxies.
 - Use `bun run cli service print macos` or `bun run cli service print systemd` for background service templates, then adapt environment variables in the user's untracked service configuration.
+- Create or update `$FAB_DASHBOARD_HOME/README.md` after configuring a background service, Tailscale Serve, trusted config origin, or companion local API so future agents can see what is already running.
 - Point users to [docs/service.md](docs/service.md) for the current serving workflow and host/origin guardrails.
 - Treat Tailscale Funnel, public reverse proxies, and non-local binds as explicit public-exposure choices. Ask before enabling them, and remind the user that fab-dashboard is not a multi-user auth system; keep remote setups private/read-only whenever possible.
 - The app ships PWA assets in tracked files. For mobile installation, prefer an HTTPS Tailscale Serve URL; localhost development URLs are for local desktop iteration.
@@ -85,7 +95,7 @@ Dashboard layout preferences are tracked engine features under `dashboard.appear
 - Keep width customization preset-based. Do not add arbitrary CSS lengths or user-supplied style strings to `dashboard.json`.
 - Keep `large` as the default 1400px shell and `maxColumns: 3` as the default masonry cap. Resolve omitted layout config at call sites instead of serializing defaults into user config.
 - Masonry columns must be container-aware, not viewport-only, because width presets can intentionally narrow the dashboard on wide screens.
-- Settings writes for layout use the same local-only config mutation boundary as card reordering. Keep endpoint writes narrow, validate before and after, preserve raw unrelated JSON, and prune default layout values where possible.
+- Settings writes for layout use the same local/private config mutation boundary as card reordering. Keep endpoint writes narrow, validate before and after, preserve raw unrelated JSON, and prune default layout values where possible.
 
 ## Implementation Notes
 

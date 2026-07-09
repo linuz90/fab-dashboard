@@ -1,14 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { configMutationsAllowed, normalizeHostname, requestCanMutateConfig } from "./security";
+import { configMutationsAllowed, normalizeHostname, parseTrustedConfigOrigins, requestCanMutateConfig } from "./security";
 
 function request(url: string, headers: HeadersInit = {}) {
   return new Request(url, { headers });
 }
 
-function canMutate(req: Request, options: { serverHost?: string; remoteAddress?: string | null } = {}) {
+function canMutate(req: Request, options: { serverHost?: string; remoteAddress?: string | null; trustedOrigins?: readonly string[] } = {}) {
   return requestCanMutateConfig(req, {
     serverHost: options.serverHost ?? "127.0.0.1",
     remoteAddress: options.remoteAddress ?? "127.0.0.1",
+    trustedOrigins: options.trustedOrigins,
   });
 }
 
@@ -30,6 +31,32 @@ describe("requestCanMutateConfig", () => {
       Host: "127.0.0.1:7893",
       Origin: "http://127.0.0.1:5193",
     }))).toBe(true);
+  });
+
+  test("allows explicitly trusted origins through a local proxy", () => {
+    const trustedOrigins = ["https://example.tailnet.ts.net"];
+    expect(canMutate(request("https://example.tailnet.ts.net/api/dashboard", {
+      Host: "example.tailnet.ts.net",
+    }), { trustedOrigins })).toBe(true);
+    expect(canMutate(request("https://example.tailnet.ts.net/api/dashboard", {
+      Host: "example.tailnet.ts.net",
+      Origin: "https://example.tailnet.ts.net",
+    }), { trustedOrigins })).toBe(true);
+    expect(canMutate(request("http://example.tailnet.ts.net/api/dashboard", {
+      Host: "example.tailnet.ts.net",
+      Origin: "https://example.tailnet.ts.net",
+    }), { trustedOrigins })).toBe(true);
+    expect(canMutate(request("https://example.tailnet.ts.net/api/dashboard", {
+      Host: "example.tailnet.ts.net",
+      Origin: "https://evil.example",
+    }), { trustedOrigins })).toBe(false);
+    expect(canMutate(request("https://example.tailnet.ts.net/api/dashboard", {
+      Host: "example.tailnet.ts.net",
+      Origin: "https://example.tailnet.ts.net",
+    }), {
+      remoteAddress: "203.0.113.10",
+      trustedOrigins,
+    })).toBe(false);
   });
 
   test("rejects reverse-proxied or public requests", () => {
@@ -61,5 +88,10 @@ describe("requestCanMutateConfig", () => {
     }), {
       remoteAddress: "203.0.113.10",
     })).toBe(false);
+  });
+
+  test("parses trusted config origins from a comma-separated env value", () => {
+    expect(parseTrustedConfigOrigins(" https://example.tailnet.ts.net/path,not a url,http://localhost:7893 "))
+      .toEqual(["https://example.tailnet.ts.net", "http://localhost:7893"]);
   });
 });

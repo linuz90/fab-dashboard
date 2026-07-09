@@ -1,4 +1,4 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dashboardConfigSchema, SCHEMA_VERSION } from "./shared/schemas";
 import { DEFAULT_THEME } from "./shared/themes";
@@ -7,6 +7,7 @@ import { resolveDashboardPaths } from "./server/paths";
 import { ensureDir, pathExists, readJsonFile, writeJsonAtomic } from "./server/storage";
 
 const paths = resolveDashboardPaths();
+const setupReadmePath = join(paths.configHome, "README.md");
 
 function usage(): never {
   console.log(`fab-dashboard
@@ -23,6 +24,47 @@ Usage:
 
 function hasFlag(flag: string): boolean {
   return process.argv.includes(flag);
+}
+
+function defaultSetupReadme(): string {
+  return `# fab-dashboard local setup
+
+This file is private operating context for agents and humans working on this dashboard.
+Keep it in this config home, outside the public engine repo.
+
+## Dashboard home
+
+- Config home: ${paths.configHome}
+- State/cache home: ${paths.stateHome}
+- Dashboard config: ${paths.dashboardJson}
+
+## Running the dashboard
+
+Document how this dashboard is served here:
+
+- Service manager:
+- Service file:
+- Local URL:
+- Private/Tailscale URL:
+- Environment variables:
+- Restart command:
+
+## Data refresh jobs
+
+List any launchd/systemd timers, cron jobs, snapshot scripts, or local services that feed connectors.
+
+## Notes for agents
+
+- Run \`bun run cli doctor --json\` from the repo before changing cards or service setup.
+- Read this file before editing service, Tailscale, connector refresh, or local path settings.
+- Update this file whenever the running setup changes.
+`;
+}
+
+async function ensureSetupReadme() {
+  if (await pathExists(setupReadmePath)) return false;
+  await writeFile(setupReadmePath, defaultSetupReadme(), "utf8");
+  return true;
 }
 
 async function init() {
@@ -53,7 +95,9 @@ async function init() {
 
   const parsed = dashboardConfigSchema.parse(dashboard);
   const backup = await writeJsonAtomic(paths.dashboardJson, parsed, { backup: true });
+  const wroteSetupReadme = await ensureSetupReadme();
   console.log(`wrote ${paths.dashboardJson}`);
+  if (wroteSetupReadme) console.log(`wrote ${setupReadmePath}`);
   if (backup) console.log(`backup ${backup}`);
   if (!demo) console.log("dashboard is empty; add cards/connectors or run `fab-dashboard init --demo --force`.");
 }
@@ -77,11 +121,14 @@ async function validate() {
 async function doctor() {
   const result = await validateAll(paths);
   const usage = summarizeDashboardUsage(result.config, result.catalog);
+  const setupReadmeExists = await pathExists(setupReadmePath);
   const payload = {
     ok: result.ok,
     configHome: paths.configHome,
     stateHome: paths.stateHome,
     cacheHome: paths.cacheHome,
+    setupReadme: setupReadmePath,
+    setupReadmeExists,
     dashboardJson: paths.dashboardJson,
     dashboardExists: result.dashboardExists,
     dashboardCards: usage.dashboardCards,
@@ -104,6 +151,7 @@ async function doctor() {
   }
   console.log(`config: ${payload.configHome}`);
   console.log(`state:  ${payload.stateHome}`);
+  console.log(`setup: ${payload.setupReadmeExists ? "present" : "missing"} (${payload.setupReadme})`);
   console.log(`dashboard: ${payload.dashboardExists ? "present" : "missing"}`);
   console.log(`dashboard cards: ${payload.dashboardCards}`);
   console.log(`dashboard connectors: ${payload.dashboardConnectors}`);

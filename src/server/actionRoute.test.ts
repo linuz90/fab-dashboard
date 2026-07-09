@@ -235,6 +235,34 @@ describe("handleUpdateAppearanceLayoutRequest", () => {
     });
   });
 
+  test("updates layout through an explicitly trusted Tailscale Serve origin", async () => {
+    const root = await mkdtemp(join(tmpdir(), "fab-dashboard-route-"));
+    const paths = testPaths(root);
+    await writeJson(paths.dashboardJson, {
+      schemaVersion: 1,
+      title: "test",
+      refreshSeconds: 30,
+      cards: [],
+    });
+
+    const response = await handleUpdateAppearanceLayoutRequest(new Request("http://example.tailnet.ts.net/api/dashboard/appearance/layout", {
+      method: "POST",
+      headers: layoutHeaders({ Origin: "https://example.tailnet.ts.net" }),
+      body: JSON.stringify({ baseLayout: {}, layout: { width: "medium", maxColumns: 2 } }),
+    }), paths, {
+      mutationsAllowed: true,
+      publicOrigin: "https://example.tailnet.ts.net",
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true, changed: true });
+    expect(await readJson(paths.dashboardJson)).toMatchObject({
+      appearance: {
+        layout: { width: "medium", maxColumns: 2 },
+      },
+    });
+  });
+
   test("returns layout request errors without writing", async () => {
     const root = await mkdtemp(join(tmpdir(), "fab-dashboard-route-"));
     const paths = testPaths(root);

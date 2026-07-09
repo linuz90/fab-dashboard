@@ -2,7 +2,7 @@ import { extname, join, normalize } from "node:path";
 import { handleReorderCardsRequest, handleUpdateAppearanceLayoutRequest } from "./src/server/actionRoute";
 import { buildDashboardResponse, createRuntime } from "./src/server/dashboard";
 import { resolveDashboardPaths } from "./src/server/paths";
-import { configMutationsAllowed, normalizeHostname, requestCanMutateConfig } from "./src/server/security";
+import { configMutationsAllowed, normalizeHostname, parseTrustedConfigOrigins, requestCanMutateConfig } from "./src/server/security";
 
 const paths = resolveDashboardPaths();
 const runtime = createRuntime(paths);
@@ -16,6 +16,7 @@ function parsePort(): number {
 const HOST = process.env.FAB_DASHBOARD_HOST?.trim() || "127.0.0.1";
 const PORT = parsePort();
 const CONFIG_MUTATIONS_SERVER_ALLOWED = configMutationsAllowed(HOST);
+const TRUSTED_CONFIG_ORIGINS = parseTrustedConfigOrigins(process.env.FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS);
 const DEFAULT_ALLOWED_HOSTS = ["localhost", "127.0.0.1", "::1"];
 const allowedHosts = new Set(
   (process.env.FAB_DASHBOARD_ALLOWED_HOSTS?.split(",").map((h) => h.trim()).filter(Boolean) ?? DEFAULT_ALLOWED_HOSTS)
@@ -85,6 +86,7 @@ const server = Bun.serve({
       requestCanMutateConfig(req, {
         serverHost: HOST,
         remoteAddress: bunServer.requestIP(req)?.address ?? null,
+        trustedOrigins: TRUSTED_CONFIG_ORIGINS,
       });
 
     if (url.pathname === "/healthz") {

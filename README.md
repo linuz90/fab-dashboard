@@ -82,6 +82,7 @@ You can author dashboard files by hand, but the intended path is to let an agent
 
 ```txt
 ~/.config/fab-dashboard/
+  README.md
   dashboard.json
   cards/<type>/card.json
   connectors/<id>/connector.json
@@ -93,6 +94,8 @@ You can author dashboard files by hand, but the intended path is to let an agent
 ```
 
 Put API keys in `$FAB_DASHBOARD_HOME/.env` and reference them from connectors as `env:NAME`. Use `file:/absolute/path` for secrets stored in separate local files. Never commit real dashboards, private command scripts, personal snapshots, connector cache, or secret material.
+
+Use `$FAB_DASHBOARD_HOME/README.md` as the private operating note for your dashboard: service manager, local URL, Tailscale URL, restart command, companion local APIs, and refresh jobs. `bun run cli init` creates a starter file, and `bun run cli doctor --json` reports whether it exists. Agents should read and update it when they change how the dashboard runs.
 
 To use a different config home:
 
@@ -165,9 +168,10 @@ FAB_DASHBOARD_PORT=7893
 FAB_DASHBOARD_HOST=127.0.0.1
 FAB_DASHBOARD_ALLOWED_HOSTS=localhost,127.0.0.1
 FAB_DASHBOARD_PUBLIC_ORIGIN=
+FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS=
 ```
 
-`FAB_DASHBOARD_PORT` wins over `PORT`. `FAB_DASHBOARD_HOME` and `FAB_DASHBOARD_STATE_HOME` override the default config and state directories. UI writes, such as card reordering and layout changes from settings, are enabled only when the server is bound to a local host.
+`FAB_DASHBOARD_PORT` wins over `PORT`. `FAB_DASHBOARD_HOME` and `FAB_DASHBOARD_STATE_HOME` override the default config and state directories. UI writes, such as card reordering and layout changes from settings, are enabled only when the server is bound to a local host. Add exact private proxy origins to `FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS` only when you intentionally want settings writes through something like Tailscale Serve.
 
 Use `.env.example` as a safe starting point for local development overrides.
 
