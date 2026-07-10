@@ -441,7 +441,7 @@ function AllocationBlock({ block, data }: { block: Extract<Block, { type: "alloc
             <span className="min-w-0 truncate type-ui-sm text-muted">{item.label}</span>
             <span className="ml-auto flex shrink-0 items-baseline gap-2">
               {item.meta && <span className={cn("font-mono type-ui-xs", toneClass(item.tone))}>{item.meta}</span>}
-              <span className="w-12 text-right font-mono type-ui-md text-fg">{item.valueLabel}</span>
+              <span className="min-w-12 text-right font-mono type-ui-md text-fg">{item.valueLabel}</span>
             </span>
           </div>
         ))}
@@ -744,8 +744,13 @@ function TabsBlock({
   onRefresh: () => void;
 }) {
   const ids = block.tabs.map((tab) => tab.id);
-  const [active, setActive] = useStoredTab(`${storageKey}:${block.id ?? "tabs"}`, ids);
-  const selected = block.tabs.find((tab) => tab.id === active) ?? block.tabs.find((tab) => tab.id === block.defaultTab) ?? block.tabs[0];
+  const [active, setActive] = useStoredTab(
+    `${storageKey}:${block.id ?? "tabs"}`,
+    ids,
+    block.defaultTab,
+    block.persist,
+  );
+  const selected = block.tabs.find((tab) => tab.id === active) ?? block.tabs[0];
   return (
     <div className="space-y-3">
       <TabPills tabs={block.tabs.map(({ id, label }) => ({ id, label }))} active={selected.id} onSelect={setActive} />

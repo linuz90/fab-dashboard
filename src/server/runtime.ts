@@ -1,4 +1,4 @@
-import { copyFile, lstat, readdir, readFile } from "node:fs/promises";
+import { chmod, copyFile, lstat, readdir, readFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { ConnectorManifest, SourceFreshness } from "../shared/schemas";
@@ -197,6 +197,10 @@ export class ConnectorRuntime {
     const path = `${this.paths.cacheHome}/${id}.json`;
     if (!(await pathExists(path))) return null;
     try {
+      // Persisted connector payloads may contain private user aggregates.
+      // Tighten old cache paths before reading them, not only on the next write.
+      await ensureDir(this.paths.cacheHome, { mode: 0o700 });
+      await chmod(path, 0o600);
       const persisted = (await readJsonFile(path)) as PersistedSnapshot;
       if (persisted.manifestHash !== manifestHash(manifest)) return null;
       const snapshot: ConnectorSnapshot = {
@@ -233,14 +237,13 @@ export class ConnectorRuntime {
 
   private async persist(id: string, snapshot: ConnectorSnapshot): Promise<void> {
     if (!snapshot.freshness.fetchedAt) return;
-    await ensureDir(this.paths.cacheHome);
     await writeJsonAtomic(`${this.paths.cacheHome}/${id}.json`, {
       cacheVersion: 1,
       manifestHash: snapshot.manifestHash,
       fetchedAt: snapshot.freshness.fetchedAt,
       ttlMs: snapshot.freshness.ttlMs,
       data: snapshot.data,
-    } satisfies PersistedSnapshot);
+    } satisfies PersistedSnapshot, { mode: 0o600, dirMode: 0o700 });
   }
 
   private async fetchConnector(manifest: ConnectorManifest): Promise<unknown> {

@@ -119,6 +119,8 @@ Common blocks:
 - `leaderboard`: ranked rows with optional subtitle, value, delta, palette key, and progress bar. Use this for standings, holdings, or any compact ordered table.
 - `status`, `sparkline`, `group`, `tabs`, `divider`, and `action-row`.
 
+`tabs.defaultTab` selects the initial tab, falling back to the first tab if needed. With `persist: true`, normal dashboard renders restore and save the active tab per card. With `persist: false`, a page load starts from `defaultTab`; tab changes survive card remounts and data refreshes for that page lifetime, but reset on reload. Inert card previews always start from `defaultTab` and never read or write either form of dashboard selection state.
+
 `list` paths are item-relative. For example, `path: "feed.items"` plus `titlePath: "title"` reads `feed.items[].title`, not `feed.items[].feed.items.title`.
 
 List item links from `hrefPath` are sanitized with `safeHref`. External `http` and `https` links open in a new tab so the dashboard keeps running in place.

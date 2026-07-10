@@ -1,9 +1,54 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { CardInteractionModeProvider } from "../components/CardInteractionMode";
+import { transientTabSelections } from "../components/TabPills";
 import { Blocks } from "./BlockRenderer";
+
+const originalLocalStorage = globalThis.localStorage;
+
+function installStorage(initial: Record<string, string> = {}) {
+  const values = new Map(Object.entries(initial));
+  let reads = 0;
+  let writes = 0;
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem(key: string) {
+        reads += 1;
+        return values.get(key) ?? null;
+      },
+      setItem(key: string, value: string) {
+        writes += 1;
+        values.set(key, value);
+      },
+    },
+  });
+  return {
+    reads: () => reads,
+    writes: () => writes,
+  };
+}
+
+afterEach(() => {
+  transientTabSelections.clear();
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: originalLocalStorage });
+});
 
 function renderBlocks(blocks: unknown[], data: Record<string, unknown>) {
   return renderToStaticMarkup(<Blocks blocks={blocks} data={data} storageKey="test" onRefresh={() => undefined} />);
+}
+
+function tabsBlock({ defaultTab = "portfolio", persist = true }: { defaultTab?: string; persist?: boolean } = {}) {
+  return {
+    id: "finances",
+    type: "tabs",
+    defaultTab,
+    persist,
+    tabs: [
+      { id: "portfolio", label: "Portfolio", blocks: [{ type: "text", text: "Portfolio summary" }] },
+      { id: "money", label: "Money", blocks: [{ type: "text", text: "Sensitive balances" }] },
+    ],
+  };
 }
 
 describe("Blocks", () => {
@@ -115,5 +160,58 @@ describe("Blocks", () => {
     expect(renderBlocks([
       { type: "action-row", actions: [{ id: "refresh", label: "Refresh", icon: "refresh-cw", display: "icon", capability: "readOnly", disabled: false }] },
     ], {})).toBe("");
+  });
+
+  test("non-persisted tabs ignore storage and honor a non-first default", () => {
+    const storage = installStorage({ "dashboard:tab:test:finances": "portfolio" });
+    const html = renderBlocks([tabsBlock({ defaultTab: "money", persist: false })], {});
+
+    expect(html).toContain("Sensitive balances");
+    expect(html).not.toContain("Portfolio summary");
+    expect(storage.reads()).toBe(0);
+    expect(storage.writes()).toBe(0);
+  });
+
+  test("non-persisted tabs restore an in-page selection across card remounts", () => {
+    const storage = installStorage({ "dashboard:tab:test:finances": "portfolio" });
+    transientTabSelections.remember("test:finances", "money");
+    const html = renderBlocks([tabsBlock({ persist: false })], {});
+
+    expect(html).toContain("Sensitive balances");
+    expect(html).not.toContain("Portfolio summary");
+    expect(storage.reads()).toBe(0);
+    expect(storage.writes()).toBe(0);
+  });
+
+  test("preview tabs ignore persisted and in-page sensitive selections", () => {
+    const storage = installStorage({ "dashboard:tab:test:finances": "money" });
+    transientTabSelections.remember("test:finances", "money");
+    const html = renderToStaticMarkup(
+      <CardInteractionModeProvider mode="preview">
+        <Blocks blocks={[tabsBlock()]} data={{}} storageKey="test" onRefresh={() => undefined} />
+      </CardInteractionModeProvider>,
+    );
+
+    expect(html).toContain("Portfolio summary");
+    expect(html).not.toContain("Sensitive balances");
+    expect(storage.reads()).toBe(0);
+    expect(storage.writes()).toBe(0);
+  });
+
+  test("invalid tab defaults fall back to the first tab", () => {
+    installStorage();
+    const html = renderBlocks([tabsBlock({ defaultTab: "missing", persist: false })], {});
+
+    expect(html).toContain("Portfolio summary");
+    expect(html).not.toContain("Sensitive balances");
+  });
+
+  test("persisted dashboard tabs keep restoring a valid stored selection", () => {
+    const storage = installStorage({ "dashboard:tab:test:finances": "money" });
+    const html = renderBlocks([tabsBlock()], {});
+
+    expect(html).toContain("Sensitive balances");
+    expect(html).not.toContain("Portfolio summary");
+    expect(storage.reads()).toBe(1);
   });
 });

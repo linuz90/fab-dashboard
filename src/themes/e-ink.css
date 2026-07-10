@@ -170,7 +170,7 @@
 
 :root[data-theme="e-ink"] .tab-pills {
   gap: 1rem;
-  margin-block: 0.1rem 0.45rem;
+  margin-block: 0.1rem 0.6rem;
   border: 0;
   border-bottom: 1px dotted var(--card-border-color, var(--color-border));
   border-radius: 0;

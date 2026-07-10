@@ -4,21 +4,58 @@ import { cn } from "../lib/cn";
 
 const STORAGE_PREFIX = "dashboard:tab:";
 
-/** Active tab persisted per card in localStorage, same pattern as
- * CollapsibleSection. Falls back to the first tab on bad stored values. */
-export function useStoredTab<T extends string>(storageKey: string, tabs: readonly T[]): [T, (t: T) => void] {
+export function createTransientTabSelections() {
+  const selections = new Map<string, string>();
+
+  return {
+    restore<T extends string>(storageKey: string, tabs: readonly T[]): T | null {
+      const selected = selections.get(storageKey);
+      if (!selected) return null;
+      if (tabs.includes(selected as T)) return selected as T;
+      selections.delete(storageKey);
+      return null;
+    },
+    remember<T extends string>(storageKey: string, tab: T) {
+      selections.set(storageKey, tab);
+    },
+    clear() {
+      selections.clear();
+    },
+  };
+}
+
+// Non-persisted tabs should survive card remounts caused by data refreshes but
+// reset on a real page load. Module memory gives us exactly that lifecycle.
+export const transientTabSelections = createTransientTabSelections();
+
+/** Active tab state with optional per-card persistence. Preview renders are
+ * deliberately isolated from storage so they always show the configured safe
+ * default and cannot change the dashboard's selection. */
+export function useStoredTab<T extends string>(
+  storageKey: string,
+  tabs: readonly T[],
+  defaultTab: string,
+  persist: boolean,
+): [T, (t: T) => void] {
   const mode = useCardInteractionMode();
+  const fallback = tabs.includes(defaultTab as T) ? (defaultTab as T) : tabs[0]!;
   const [tab, setTab] = useState<T>(() => {
+    if (mode === "preview") return fallback;
+    if (!persist) return transientTabSelections.restore(storageKey, tabs) ?? fallback;
     try {
       const stored = localStorage.getItem(STORAGE_PREFIX + storageKey);
-      return tabs.includes(stored as T) ? (stored as T) : tabs[0]!;
+      return tabs.includes(stored as T) ? (stored as T) : fallback;
     } catch {
-      return tabs[0]!;
+      return fallback;
     }
   });
   function select(next: T) {
     setTab(next);
     if (mode === "preview") return;
+    if (!persist) {
+      transientTabSelections.remember(storageKey, next);
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_PREFIX + storageKey, next);
     } catch {

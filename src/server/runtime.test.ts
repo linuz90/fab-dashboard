@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, test } from "bun:test";
@@ -30,6 +30,39 @@ describe("redactForDisplay", () => {
 });
 
 describe("ConnectorRuntime", () => {
+  test("keeps persisted connector snapshots and their cache directory user-only", async () => {
+    const root = await mkdtemp(join(tmpdir(), "fab-dashboard-runtime-"));
+    const paths = testPaths(root);
+    const dataPath = join(root, "private.json");
+    await writeFile(dataPath, JSON.stringify({ balance: 42 }));
+    const manifest: ConnectorManifest = {
+      schemaVersion: 1,
+      id: "private",
+      kind: "file",
+      ttlSeconds: 60,
+      persist: true,
+      path: "./private.json",
+      maxBytes: 1_024,
+      allowSymlinks: false,
+    };
+    const connectors = new Map<string, ConnectorManifest>([["private", manifest]]);
+
+    expect(await new ConnectorRuntime(paths).get("private", connectors)).toMatchObject({
+      data: { balance: 42 },
+    });
+    const cachePath = join(paths.cacheHome, "private.json");
+    expect((await stat(paths.cacheHome)).mode & 0o777).toBe(0o700);
+    expect((await stat(cachePath)).mode & 0o777).toBe(0o600);
+
+    await chmod(paths.cacheHome, 0o755);
+    await chmod(cachePath, 0o644);
+    expect(await new ConnectorRuntime(paths).get("private", connectors)).toMatchObject({
+      data: { balance: 42 },
+    });
+    expect((await stat(paths.cacheHome)).mode & 0o777).toBe(0o700);
+    expect((await stat(cachePath)).mode & 0o777).toBe(0o600);
+  });
+
   test("invalidates cached static data when manifest changes", async () => {
     const root = await mkdtemp(join(tmpdir(), "fab-dashboard-runtime-"));
     const runtime = new ConnectorRuntime(testPaths(root));
