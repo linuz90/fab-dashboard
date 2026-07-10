@@ -61,6 +61,8 @@ Before proposing or changing a real dashboard card, inspect the active config ho
 
 Also read the local setup note reported by `doctor --json` when it exists, especially before adding cards that depend on companion services, scheduled snapshots, command connectors, or private APIs.
 
+When the user knows what they want to see but not how to source it, treat data acquisition as part of the card design. Do a bounded read-only discovery pass and offer the simplest viable routes: an existing connector or companion endpoint, an installed CLI or export/snapshot workflow, a documented local file/database, an official API with narrowly scoped credentials, or a small user-owned command/TypeScript adapter. Discovered tools, repos, and authenticated accounts are candidates, not authorization: confirm the source of truth, account/workspace/resource, and credential location before querying private data, and ask before starting OAuth, creating API keys, expanding scopes, provisioning services, or incurring cost.
+
 Every real card should have a connector and live under `$FAB_DASHBOARD_HOME`, usually `~/.config/fab-dashboard`. Ask/confirm unclear data sources, credentials, and local paths; do not infer sensitive company/account/service choices from ambient context. Do not hardcode personal/live values in card JSON, commit secrets or private scripts, or add repo source just for a private card unless the card reveals a missing reusable engine capability.
 
 ## Empty Dashboard Bootstrap

@@ -18,9 +18,9 @@ Decide where the work belongs before editing:
 - Tracked demo/example: `examples/cards`, `examples/connectors`, and `examples/dashboard.demo.json`. Demo data must be synthetic `static` data.
 - Core engine change: `src/shared/schemas.ts`, `src/renderer/BlockRenderer.tsx`, or runtime files only when existing primitives/connectors cannot express the card cleanly.
 
-Ask a short clarifying question only when the data source is missing or materially changes the implementation. Examples: "Which service owns MRR: Stripe, ChartMogul, Baremetrics, custom DB, or something else?" "Which folder is the notes inbox?" "Should this be a real local card or a tracked demo?"
+If the data source is missing, do the bounded discovery pass below before asking a broad question. Ask a short clarifying question when a choice still blocks safe progress or materially changes the implementation. Examples: "Which service owns MRR: Stripe, ChartMogul, Baremetrics, custom DB, or something else?" "Which folder is the notes inbox?" "Should this be a real local card or a tracked demo?"
 
-Do not infer sensitive company, account, workspace, or service choices from ambient context such as email domains, repo names, installed skills, available tools, shell history, or previous unrelated cards. Treat that context as a weak hint only; ask or confirm before choosing the source of truth.
+Do not infer sensitive company, account, workspace, or service choices from ambient context such as email domains, repo names, installed skills, available tools, or previous unrelated cards. Treat that context as a weak hint that may generate candidates, never as authority to select or query a sensitive source; ask or confirm before choosing the source of truth. Never inspect shell history as a discovery mechanism.
 
 ## Inspect Existing Dashboard Context
 
@@ -33,6 +33,20 @@ bun run cli doctor --json
 Then read the active `$FAB_DASHBOARD_HOME/dashboard.json` plus any nearby card or connector definitions that the new work might reuse, replace, or collide with. If `FAB_DASHBOARD_HOME` is unset, the active home is the default `~/.config/fab-dashboard`.
 
 Use the existing dashboard order, card sizes, connector ids, titles, keywords, header widgets, freshness labels, and visual density as context for both proposals and edits. Prefer extending or reusing a connector when it already owns the needed source, avoid redundant cards, and choose non-conflicting slugs for new card types, connectors, and dashboard instance ids. Do not run `bun run cli doctor --fetch` unless connector health diagnostics are needed, because it may call local commands or remote APIs.
+
+## Discover the Data Path
+
+Do not wait for the user to bring a ready-made API. Work backward from the desired card: identify the facts it needs, which systems likely own them, the expected freshness, and the privacy boundary. Treat finding, combining, or creating a safe read surface as normal connector work.
+
+Use this bounded discovery ladder and stop at the simplest reliable option:
+
+1. Inspect the active dashboard, its setup README, related connectors, and explicitly in-scope user-owned project docs for an existing normalized connector, local API, CLI, export, or snapshot job that can be reused.
+2. Generate plausible source candidates from the user's description and relevant context. Once a provider or local system is in scope, check non-secret readiness such as executable availability, `--help`, or an auth-status command. Confirm the intended account/workspace/resource before querying private records. Never inspect shell history, export credentials, dump environments, print tokens, or search credential stores during discovery.
+3. If ownership or access is still unclear, ask a focused question while offering one to three concrete routes. Explain their freshness, reliability, privacy, setup, and cost tradeoffs, then recommend the simplest honest option.
+4. If no read surface exists, offer to create the smallest useful one: a narrowly scoped API integration, an export or file snapshot, a user-owned command/trusted-TS adapter, or a companion local endpoint. Use scheduled snapshots or webhooks when live polling is expensive, fragile, or rate-limited.
+5. Ask before starting OAuth, creating or rotating credentials, changing scopes, provisioning services, enabling anything billable, or making other external changes.
+
+For sensitive sources, explicitly decide what may reach the browser and persisted connector cache. Emit only display-needed data, keep raw source records upstream when possible, and disable persistence when the payload should not survive on disk.
 
 ## Bootstrap Empty Dashboards
 
@@ -123,7 +137,7 @@ Before declaring a card done, intentionally render or intentionally drop counts,
 ## Build Steps
 
 1. Inspect `AGENTS.md`, `docs/config.md`, `src/shared/schemas.ts`, the active config home, the nearest examples, and relevant templates.
-2. Identify or ask for the real data source and expected freshness.
+2. Discover, identify, or ask for the real data source, expected freshness, and privacy boundary.
 3. Implement the connector first and normalize its output to display-ready JSON.
 4. Implement the card definition using block primitives and connector paths. Set card `freshness.staleAfterSeconds` greater than or equal to the connector `ttlSeconds` unless there is a deliberate reason the visible label should go stale sooner.
 5. Add or update the dashboard instance.
