@@ -10,6 +10,7 @@ import {
   sameLayoutSelection,
   type DashboardLayoutSelection,
 } from "./DashboardLayoutSettingsSection";
+import { DashboardThemeSettingsSection } from "./DashboardThemeSettingsSection";
 import type { SortableCardOrderItem } from "./SortableCardOrderList";
 
 const MODAL_EXIT_MS = 120;
@@ -139,9 +140,15 @@ export function DashboardSettings({ resp }: { resp: DashboardResponse | null }) 
   useEffect(() => {
     if (!rendered) return;
     const previousOverflow = document.body.style.overflow;
+    const appScroll = document.querySelector<HTMLElement>(".app-scroll");
+    const previousAppOverflowY = appScroll?.style.overflowY ?? "";
     document.body.style.overflow = "hidden";
+    // The dashboard owns scrolling in .app-scroll rather than body. Lock both
+    // so an exhausted settings scroller cannot move the obscured dashboard.
+    if (appScroll) appScroll.style.overflowY = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (appScroll) appScroll.style.overflowY = previousAppOverflowY;
     };
   }, [rendered]);
 
@@ -245,7 +252,7 @@ export function DashboardSettings({ resp }: { resp: DashboardResponse | null }) 
       {rendered && (
         <div
           data-state={open ? "open" : "closed"}
-          className="dashboard-settings-backdrop fixed inset-0 z-[70] flex items-center justify-center bg-canvas/70 px-4 py-6 backdrop-blur-sm"
+          className="dashboard-settings-backdrop fixed inset-0 z-[70] flex items-stretch justify-center bg-canvas/70 p-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6"
           onPointerDown={(event) => {
             if (!dragging && event.target === event.currentTarget) closeSettings();
           }}
@@ -255,9 +262,9 @@ export function DashboardSettings({ resp }: { resp: DashboardResponse | null }) 
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="dashboard-settings-panel flex max-h-full w-full max-w-[28rem] flex-col rounded-xl border border-border bg-card p-4 text-fg shadow-2xl"
+            className="dashboard-settings-panel flex h-dvh min-h-0 w-full max-w-none flex-col overflow-hidden rounded-none border-0 bg-card pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1rem,env(safe-area-inset-top))] text-fg shadow-none sm:h-auto sm:max-h-[calc(100dvh-3rem)] sm:max-w-[28rem] sm:rounded-xl sm:border sm:border-border sm:p-4 sm:shadow-2xl"
           >
-            <div className="flex items-start justify-between gap-3 border-b-[0.5px] border-border pb-3">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b-[0.5px] border-border pb-3">
               <div className="min-w-0">
                 <h2 id={titleId} className="type-ui-md font-medium">
                   Dashboard settings
@@ -275,7 +282,9 @@ export function DashboardSettings({ resp }: { resp: DashboardResponse | null }) 
                 <X className="size-4" />
               </button>
             </div>
-            <div className="mt-4 min-h-0 overflow-y-auto pr-1">
+            <div className="dashboard-settings-content mt-4 min-h-0 flex-1 overflow-y-auto overscroll-y-contain pr-1">
+              <DashboardThemeSettingsSection appearance={resp?.config.appearance} />
+
               <DashboardLayoutSettingsSection
                 value={layoutSelection}
                 disabled={!canMutateConfig || layoutSaving}

@@ -7,6 +7,7 @@ script = "./workspace-setup.sh init"
 [[actions]]
 name = "Run"
 icon = "run"
+# The shared dev launcher advances from the default ports when they are busy.
 command = "bun run dev"
 
 [[actions]]

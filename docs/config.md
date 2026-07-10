@@ -67,7 +67,7 @@ Use `bun run cli doctor --json` to inspect the active config home. `dashboardCar
 }
 ```
 
-`defaultTheme` is applied after dashboard config loads when there is no valid stored browser selection. `themes` is the exact enabled theme list and display order for the header picker and command search. Omit `themes` to enable every built-in theme.
+`defaultTheme` is applied after dashboard config loads when there is no valid stored browser selection. `themes` is the exact enabled theme list and display order for dashboard settings and command search. Omit `themes` to enable every built-in theme.
 
 Unknown theme IDs, duplicate IDs, an empty `themes` list, or a `defaultTheme` that is not included in `themes` fail validation. See [themes](themes.md) for the theme authoring workflow.
 

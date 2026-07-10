@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { freshnessFor } from "./App";
-import type { ResolvedCard } from "./shared/schemas";
+import type { ResolvedCard } from "../shared/schemas";
+import { freshnessFor } from "./DashboardCard";
 
 function cardWithFreshness(fetchedAt: string): ResolvedCard {
   return {

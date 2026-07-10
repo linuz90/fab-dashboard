@@ -99,10 +99,6 @@
   letter-spacing: 0;
 }
 
-:root[data-theme="classic-macos"] .theme-selector {
-  flex: 0 0 auto;
-}
-
 :root[data-theme="classic-macos"] .app-actions {
   gap: 0.35rem;
 }
@@ -123,39 +119,6 @@
 :root[data-theme="classic-macos"] .app-actions > button svg {
   width: 12px;
   height: 12px;
-}
-
-:root[data-theme="classic-macos"] .theme-selector > button {
-  height: 18px;
-  padding: 0 0.3rem;
-  border-color: var(--classic-dark);
-  background: var(--classic-face);
-  color: var(--classic-dark);
-  box-shadow:
-    inset 1px 1px 0 var(--classic-highlight),
-    inset -1px -1px 0 var(--classic-shadow);
-  font-family: var(--font-sans);
-  font-size: var(--type-ui-2xs);
-  text-shadow: 1px 1px 0 var(--classic-highlight);
-}
-
-:root[data-theme="classic-macos"] .theme-selector [role="menu"] {
-  margin-top: 2px;
-  border-color: var(--classic-dark);
-  background: var(--classic-face);
-  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.42);
-  font-family: var(--font-sans);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-:root[data-theme="classic-macos"] .theme-selector [role="menuitemradio"] {
-  border-radius: 0;
-}
-
-:root[data-theme="classic-macos"] .theme-selector [role="menuitemradio"]:focus-visible {
-  background: var(--classic-highlight);
-  box-shadow: inset 0 0 0 1px var(--classic-dark);
 }
 
 :root[data-theme="classic-macos"] .card-surface {

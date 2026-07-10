@@ -178,7 +178,7 @@ export function SortableCardOrderList({
       }}
     >
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-        <ol className="flex max-h-[min(58vh,28rem)] flex-col gap-1.5 overflow-y-auto pr-1">
+        <ol className="dashboard-card-order-list flex flex-col gap-1.5 pr-1 sm:max-h-[min(58vh,28rem)] sm:overflow-y-auto">
           {items.map((item, index) => (
             <SortableCardRow
               key={item.id}

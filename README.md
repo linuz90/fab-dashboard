@@ -1,16 +1,65 @@
 # fab-dashboard
 
-Agent-built, local-first dashboards. Clone the repo, ask Codex or Claude to build your dashboard, and get a dense, glanceable home screen powered by your own data, apps, and tools.
+[![CI](https://github.com/linuz90/fab-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/linuz90/fab-dashboard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-fab-dashboard is a reusable dashboard engine plus an agent playbook. You do not have to hand-write JSON: tell an agent what you care about, and it can inspect your current dashboard, suggest relevant cards, pick the right connector for each data source, and wire it up safely. Your real cards, API keys, local scripts, snapshots, and cache live outside this engine repo, usually in `~/.config/fab-dashboard`; the repo stays generic and shareable.
+**Agent-friendly, local-first personal dashboard.**
+
+Hand this repo to your favorite agent, like [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code), tell it what you care about, and get a glanceable home screen powered by your own data, apps, and tools.
+
+Think of this as a dashboard engine plus an agent playbook: the agent inspects your current dashboard, suggests relevant cards, picks the right connector for each data source, and wires it up safely. Your real information, API keys, local scripts, snapshots, and cache stay outside this repo — usually in `~/.config/fab-dashboard`.
+
+Ships with several beautiful themes, and you can ask your agent to design more.
 
 ![fab-dashboard demo cycling through built-in themes](docs/assets/fab-dashboard-demo.gif)
 
-## Quick Start
+## Get Started
+
+Requires [Bun](https://bun.sh) 1.3 or later. Runs on macOS and Linux; background-service templates cover launchd and systemd.
+
+### Build Your Dashboard With An Agent
+
+This repo is designed to be handed to a coding agent. Paste this prompt into [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code) and let the agent handle setup and interview you:
+
+```txt
+Clone https://github.com/linuz90/fab-dashboard.git and set it up, then guide me
+through creating a personal dashboard that is relevant to me: ask me questions
+about who I am, what I care about, and which apps, tools, and services I use,
+then build the dashboard.
+```
+
+Already cloned the repo? Run your agent from the project root and skip the clone step:
+
+```txt
+Guide me through creating a personal dashboard that is relevant to me: ask me
+questions about who I am, what I care about, and which apps, tools, and
+services I use, then build the dashboard.
+```
+
+Once the first cards exist, keep asking for more in plain language, one at a time:
+
+```txt
+Add a tasks card with my to-dos, which are in Things on my Mac.
+```
+
+```txt
+Add a card that shows my Codex and Claude usage for the day.
+```
+
+The agent will:
+
+- inspect your active dashboard with `bun run cli doctor --json`, then read existing cards and connectors so it fits your layout instead of clobbering it
+- suggest concrete cards grouped by source: local files/apps, an API with a key, a command/script connector, or a manual/static starter
+- choose the connector shape that honestly matches each source: `http`, `file`, `command`, trusted `ts`, or `static`
+- wire real data safely: API keys go in `$FAB_DASHBOARD_HOME/.env`, real cards stay in your config home, and private data does not get committed to this engine repo
+
+The interview-then-build flow is described in [docs/bootstrap.md](docs/bootstrap.md), and the card workflow lives in the bundled [`create-card`](.agents/skills/create-card/SKILL.md) skill and [AGENTS.md](AGENTS.md), which both Codex and Claude read automatically.
+
+This is a clone-and-run project by design, not an npm package: you clone the whole engine so your agent has the source, skills, and repo instructions on hand to build and validate cards locally. `package.json` stays `private: true` to prevent accidental publication while the GitHub repository can still be public.
 
 ### Try The Demo
 
-Clone the repo and run the safe demo dashboard:
+Prefer to see it running before involving an agent? Clone the repo and run the safe demo dashboard:
 
 ```bash
 git clone https://github.com/linuz90/fab-dashboard.git
@@ -22,35 +71,9 @@ bun run cli init --demo --force
 bun run dev
 ```
 
-Open `http://127.0.0.1:5193`.
+Open the Vite URL printed by `bun run dev` (normally `http://127.0.0.1:5193`).
 
 The demo uses safe static fixtures and starts in the `e-ink` theme. Some entries use public, recognizable references so the cards feel concrete, but they do not contain private account data, secrets, or personal snapshots.
-
-### Build Your Real Dashboard With An Agent
-
-This repo is designed to be handed to a coding agent. From the project root, open Codex or Claude and describe what you want:
-
-```txt
-Help me set up my dashboard.
-Create a Things card with my tasks.
-Add a portfolio card with my stocks.
-I want a card with my Codex and Claude usage.
-I want a Spotify card with what is playing.
-I want a card with my company performance.
-```
-
-The agent will:
-
-- inspect your active dashboard with `bun run cli doctor --json`, then read existing cards and connectors so it fits your layout instead of clobbering it
-- suggest concrete cards grouped by source: local files/apps, an API with a key, a command/script connector, or a manual/static starter
-- choose the connector shape that honestly matches each source: `http`, `file`, `command`, trusted `ts`, or `static`
-- wire real data safely: API keys go in `$FAB_DASHBOARD_HOME/.env`, real cards stay in your config home, and private data does not get committed to this engine repo
-
-If your dashboard is empty, ask the agent to help you get started. It should ask who you are, what you care about, and which apps or services matter most in your day, then propose a small set of useful starter cards. See [docs/bootstrap.md](docs/bootstrap.md) for the recommendation playbook agents should follow.
-
-The workflow is documented in the bundled [`create-card`](.agents/skills/create-card/SKILL.md) skill and in [AGENTS.md](AGENTS.md), which both Codex and Claude read automatically.
-
-This is a clone-and-run project by design, not an npm package: you clone the whole engine so your agent has the source, skills, and repo instructions on hand to build and validate cards locally. `package.json` stays `private: true` to prevent accidental publication while the GitHub repository can still be public.
 
 ### Serve It Privately And Install It
 
@@ -140,7 +163,7 @@ Themes can also use generic runtime signals like `data-time-phase` and `data-loc
 ## Commands
 
 ```bash
-bun run dev          # API on :7893 + Vite on :5193
+bun run dev          # starts at API :7893 + Vite :5193; advances if busy
 bun run start        # serve built app + API on :7893
 bun run build
 bun run typecheck
@@ -153,7 +176,6 @@ bun run cli validate
 bun run cli doctor
 bun run cli doctor --json
 bun run cli doctor --fetch
-bun run cli migrate --dry-run
 bun run cli service print macos
 bun run cli service print systemd
 ```
@@ -171,7 +193,7 @@ FAB_DASHBOARD_PUBLIC_ORIGIN=
 FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS=
 ```
 
-`FAB_DASHBOARD_PORT` wins over `PORT`. `FAB_DASHBOARD_HOME` and `FAB_DASHBOARD_STATE_HOME` override the default config and state directories. UI writes, such as card reordering and layout changes from settings, are enabled only when the server is bound to a local host. Add exact private proxy origins to `FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS` only when you intentionally want settings writes through something like Tailscale Serve.
+`FAB_DASHBOARD_PORT` wins over `PORT`. Without either override, `bun run dev` starts at port `7893` and advances to the first available API port; Vite independently starts at `5193` and does the same. Explicit port overrides remain strict. `FAB_DASHBOARD_HOME` and `FAB_DASHBOARD_STATE_HOME` override the default config and state directories. UI writes, such as card reordering and layout changes from settings, are enabled only when the server is bound to a local host. Add exact private proxy origins to `FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS` only when you intentionally want settings writes through something like Tailscale Serve.
 
 Use `.env.example` as a safe starting point for local development overrides.
 

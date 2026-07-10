@@ -1,8 +1,11 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { proxyHostForDevHost } from "./scripts/devPorts";
 
 const apiPort = process.env.FAB_DASHBOARD_PORT ?? process.env.PORT ?? "7893";
+const apiHost = process.env.FAB_DASHBOARD_HOST?.trim() || "127.0.0.1";
+const apiTarget = `http://${proxyHostForDevHost(apiHost)}:${apiPort}`;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -11,11 +14,11 @@ export default defineConfig({
     port: 5193,
     proxy: {
       "/api": {
-        target: `http://127.0.0.1:${apiPort}`,
+        target: apiTarget,
         changeOrigin: true,
       },
       "/healthz": {
-        target: `http://127.0.0.1:${apiPort}`,
+        target: apiTarget,
         changeOrigin: true,
       },
     },

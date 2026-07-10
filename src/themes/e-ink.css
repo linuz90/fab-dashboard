@@ -92,8 +92,7 @@
   gap: 0.35rem;
 }
 
-:root[data-theme="e-ink"] .app-actions > button,
-:root[data-theme="e-ink"] .theme-selector > button {
+:root[data-theme="e-ink"] .app-actions > button {
   height: 1.45rem;
   border: 0;
   border-radius: 2px;
@@ -101,11 +100,6 @@
 
 :root[data-theme="e-ink"] .app-actions > button {
   width: 1.45rem;
-}
-
-:root[data-theme="e-ink"] .theme-selector > button {
-  padding-left: 0.45rem;
-  padding-right: 0.25rem;
 }
 
 :root[data-theme="e-ink"] .app-shell > main {

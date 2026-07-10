@@ -12,7 +12,7 @@ bun run cli init --demo --force
 bun run dev
 ```
 
-Open `http://127.0.0.1:5193`.
+Open the Vite URL printed by `bun run dev` (normally `http://127.0.0.1:5193`).
 
 ## What Belongs In The Repo
 

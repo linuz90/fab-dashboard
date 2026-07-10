@@ -12,7 +12,7 @@ Use **card** as the product/data-model term. If a user says "tile" or "widget", 
 
 ```bash
 bun install
-bun run dev          # API on :7893 + Vite on :5193
+bun run dev          # starts at API :7893 + Vite :5193; advances if busy
 bun run start        # serve built app + API on :7893
 bun run build
 bun run typecheck
@@ -105,6 +105,7 @@ Dashboard layout preferences are tracked engine features under `dashboard.appear
 - Connector errors must be redacted and scoped to that connector/card; one broken connector should not blank the whole dashboard.
 - Keep visual primitives token-driven through `src/index.css`; avoid hardcoded colors in React components.
 - Preserve the existing dashboard visual language: small dense type, tokenized card chrome, height-balanced masonry, theme selector, command lens, and visible freshness/stale/error states.
+- Keep command-lens card selection two-stage when multiple results remain: first confirm the selected card and show its exact inert preview; selecting the sole card closes, scrolls, and visibly identifies the dashboard card. Preview rendering must stay side-effect-free through `CardInteractionModeProvider mode="preview"`.
 - Prefer generic block primitives over bespoke card components. Current composable primitives include `text`, `metric`, `rows`, `list`, `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`; add a primitive only when it can serve multiple cards or connectors.
 - Use valid Lucide slugs for card, block, and header-widget icons. Unknown icon names intentionally fail schema validation.
 - Validate local config homes with explicit homes, for example `FAB_DASHBOARD_HOME="$PWD/local/demo" FAB_DASHBOARD_STATE_HOME="$PWD/local/state" bun run cli validate`. Use bare `bun run cli validate` only when you intend to validate the user's default `~/.config/fab-dashboard`.

@@ -86,7 +86,7 @@ Dashboards can choose the enabled theme list and order:
 }
 ```
 
-`appearance.themes` is both allowlist and display order. Omitted themes disappear from the header picker and command search, but they remain built into the engine and can be re-enabled by editing `dashboard.json`.
+`appearance.themes` is both allowlist and display order. Omitted themes disappear from dashboard settings and command search, but they remain built into the engine and can be re-enabled by editing `dashboard.json`.
 
 Rules:
 

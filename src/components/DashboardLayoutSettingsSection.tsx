@@ -138,7 +138,7 @@ export function DashboardLayoutSettingsSection({
   }));
 
   return (
-    <section className="border-b-[0.5px] border-border pb-4">
+    <section className="mt-4 border-b-[0.5px] border-border pb-4">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h3 className="type-ui-2xs font-medium uppercase tracking-ui-caps text-faint">Layout</h3>
         {saving ? (
