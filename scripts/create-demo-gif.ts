@@ -176,18 +176,23 @@ async function captureFrames(options: {
       fixedDemoNow.minute,
     ));
     await page.goto(`http://127.0.0.1:${options.vitePort}`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("[data-dashboard-card-id]", { timeout: 30_000 });
-    await page.waitForTimeout(900);
 
     const frames: string[] = [];
     for (const [index, theme] of options.themes.entries()) {
       await page.evaluate((nextTheme) => {
         localStorage.setItem("dashboard-theme", nextTheme);
-        document.documentElement.dataset.theme = nextTheme;
+      }, theme);
+      // Reload through the app's normal initialization path so React consumers
+      // of useTheme update alongside CSS. Mutating data-theme alone leaves
+      // theme traits such as e-ink's dithered charts stuck on the first theme.
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.waitForSelector("[data-dashboard-card-id]", { timeout: 30_000 });
+      await page.evaluate(async () => {
+        await document.fonts.ready;
         document.documentElement.dataset.localHour = "14";
         document.documentElement.dataset.timePhase = "day";
         document.querySelector(".app-scroll")?.scrollTo(0, 0);
-      }, theme);
+      });
       await page.waitForTimeout(250);
 
       const framePath = join(options.framesDir, `frame-${String(index).padStart(2, "0")}.png`);
