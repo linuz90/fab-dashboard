@@ -110,6 +110,15 @@ describe("Blocks", () => {
     expect(html).toContain("Model");
   });
 
+  test("metrics keep display values separate from their units", () => {
+    const html = renderBlocks([
+      { type: "metric", label: "Latency", value: "82", unit: "ms" },
+    ], {});
+
+    expect(html).toContain('class="truncate font-display');
+    expect(html).toContain('<span class="ml-1 font-mono text-base text-muted">ms</span>');
+  });
+
   test("grouped list section labels have room before their rows", () => {
     const html = renderBlocks([
       {

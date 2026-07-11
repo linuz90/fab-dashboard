@@ -2,8 +2,8 @@
    near-neutral off-white (with an ordered-dither overlay, below), so cards exist
    only as dim 1px hairlines with square corners and no shadows. Status reads
    through tone instead of hue (danger darkest, success quietest); dark mode
-   is Kindle night reading — a soft dark gray, not pure black. Fonts and
-   spacing inherit the basic defaults. */
+   is Kindle night reading — a soft dark gray, not pure black. Large display
+   values use Geist Pixel while UI text keeps the basic font defaults. */
 :root[data-theme="e-ink"] {
   --color-canvas: light-dark(#f9f9f8, #161617);
   --color-card: light-dark(#f9f9f8, #161617);
@@ -20,6 +20,8 @@
   --color-danger-soft: light-dark(#dcdcdb, #303032);
 
   --color-accent: light-dark(#1a1a1a, #f2f2f2);
+
+  --font-display: "Geist Pixel", var(--font-mono);
 
   /* Calendar dots as a gray ramp: identity by shade, not hue. */
   --color-cal-1: light-dark(#1a1a1a, #f2f2f2);

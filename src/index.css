@@ -7,6 +7,16 @@
 @import "./themes/e-ink.css";
 @import "./themes/live.css";
 
+/* Geist Pixel is self-hosted so theme switching never depends on a third-party
+   request. It is a display face, so only the themeable display token uses it. */
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("./assets/fonts/geist-pixel/GeistPixel-Latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 /* System-auto light/dark: every color is a light-dark() token, no hardcoded
    hex in components (design direction confirmed 2026-07-04).
 
@@ -17,6 +27,7 @@
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, monospace;
+  --font-display: var(--font-mono);
 
   --color-canvas: light-dark(#fafafa, #0a0a0a);
   --color-card: light-dark(#ffffff, #101012);

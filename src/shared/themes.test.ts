@@ -60,6 +60,18 @@ describe("theme registry", () => {
     }
   });
 
+  test("keeps the e-ink display font local and licensed", () => {
+    const root = process.cwd();
+    const indexCss = readFileSync(join(root, "src/index.css"), "utf8");
+    const eInkCss = readFileSync(join(root, "src/themes/e-ink.css"), "utf8");
+    const fontRoot = join(root, "src/assets/fonts/geist-pixel");
+
+    expect(indexCss).toContain("GeistPixel-Latin.woff2");
+    expect(eInkCss).toContain('--font-display: "Geist Pixel"');
+    expect(existsSync(join(fontRoot, "GeistPixel-Latin.woff2")), "Geist Pixel font asset").toBe(true);
+    expect(existsSync(join(fontRoot, "OFL.txt")), "Geist Pixel license").toBe(true);
+  });
+
   test("keeps first-paint html allowlist in sync with registry", () => {
     const indexHtml = readFileSync(join(process.cwd(), "index.html"), "utf8");
     const match = indexHtml.match(/\[([^\]]+)\]\.indexOf\(t\)/);

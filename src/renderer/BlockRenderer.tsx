@@ -353,9 +353,9 @@ function MetricBlock({ block, data }: { block: Extract<Block, { type: "metric" }
         <div className="min-w-0 space-y-1">
           <p className="type-ui-2xs font-medium uppercase tracking-ui-caps text-faint">{block.label}</p>
           <div className="flex min-w-0 items-center gap-2">
-            <p className="truncate font-mono text-[2rem] leading-none tracking-normal text-fg">
+            <p className="truncate font-display text-[2rem] leading-none tracking-normal tabular-nums text-fg">
               {value}
-              {block.unit && <span className="ml-1 text-base text-muted">{block.unit}</span>}
+              {block.unit && <span className="ml-1 font-mono text-base text-muted">{block.unit}</span>}
             </p>
             {pill && <span className={cn("shrink-0 rounded-full px-2 py-0.5 font-mono type-ui-xs", toneSoftClass(tone))}>{pill}</span>}
           </div>
