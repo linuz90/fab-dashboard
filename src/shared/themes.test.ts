@@ -10,6 +10,7 @@ import {
   normalizeThemeId,
   resolveDefaultTheme,
   resolveSelectableThemes,
+  themeChartStyle,
   themeFrameShape,
   themeLabel,
   themeRefreshPalette,
@@ -36,7 +37,10 @@ describe("theme registry", () => {
     expect(normalizeThemeChoice("e-ink", { defaultTheme: "live", themes: ["apple", "live"] })).toBe("live");
   });
 
-  test("exposes frame and refresh traits for card chrome", () => {
+  test("exposes chart, frame, and refresh traits", () => {
+    expect(themeChartStyle("e-ink")).toBe("dither");
+    expect(themeChartStyle("basic")).toBe("smooth");
+    expect(themeChartStyle("live")).toBe("smooth");
     expect(themeFrameShape("classic-macos")).toBe("square");
     expect(themeFrameShape("e-ink")).toBe("square");
     expect(themeFrameShape("basic")).toBe("rounded");
@@ -54,6 +58,18 @@ describe("theme registry", () => {
       expect(existsSync(cssPath), `${theme} css file`).toBe(true);
       expect(indexCss, `${theme} css import`).toContain(`@import "./themes/${theme}.css";`);
     }
+  });
+
+  test("keeps the e-ink display font local and licensed", () => {
+    const root = process.cwd();
+    const indexCss = readFileSync(join(root, "src/index.css"), "utf8");
+    const eInkCss = readFileSync(join(root, "src/themes/e-ink.css"), "utf8");
+    const fontRoot = join(root, "src/assets/fonts/geist-pixel");
+
+    expect(indexCss).toContain("GeistPixel-Latin.woff2");
+    expect(eInkCss).toContain('--font-display: "Geist Pixel"');
+    expect(existsSync(join(fontRoot, "GeistPixel-Latin.woff2")), "Geist Pixel font asset").toBe(true);
+    expect(existsSync(join(fontRoot, "OFL.txt")), "Geist Pixel license").toBe(true);
   });
 
   test("keeps first-paint html allowlist in sync with registry", () => {

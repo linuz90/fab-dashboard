@@ -1,6 +1,7 @@
 export const ALL_THEMES = ["basic", "apple", "classic-macos", "kingdom", "e-ink", "live"] as const;
 
 export type ThemeId = (typeof ALL_THEMES)[number];
+export type ThemeChartStyle = "smooth" | "dither";
 export type ThemeFrameShape = "rounded" | "square";
 export type ThemeRefreshPalette = "ocean" | "mono";
 
@@ -8,6 +9,7 @@ export interface ThemeDefinition {
   id: ThemeId;
   label: string;
   aliases: readonly string[];
+  chartStyle: ThemeChartStyle;
   frameShape: ThemeFrameShape;
   refreshPalette: ThemeRefreshPalette;
 }
@@ -24,6 +26,7 @@ export const THEME_DEFINITIONS = [
     id: "basic",
     label: "Basic",
     aliases: ["default", "neutral", "claude"],
+    chartStyle: "smooth",
     frameShape: "rounded",
     refreshPalette: "ocean",
   },
@@ -31,6 +34,7 @@ export const THEME_DEFINITIONS = [
     id: "apple",
     label: "Apple",
     aliases: ["ios", "macos", "squircle", "sf"],
+    chartStyle: "smooth",
     frameShape: "rounded",
     refreshPalette: "ocean",
   },
@@ -38,6 +42,7 @@ export const THEME_DEFINITIONS = [
     id: "classic-macos",
     label: "Classic MacOS",
     aliases: ["classic", "mac os", "macintosh", "retro", "system 9"],
+    chartStyle: "smooth",
     frameShape: "square",
     refreshPalette: "ocean",
   },
@@ -45,6 +50,7 @@ export const THEME_DEFINITIONS = [
     id: "kingdom",
     label: "Kingdom",
     aliases: ["medieval", "parchment", "manuscript"],
+    chartStyle: "smooth",
     frameShape: "rounded",
     refreshPalette: "ocean",
   },
@@ -52,6 +58,7 @@ export const THEME_DEFINITIONS = [
     id: "e-ink",
     label: "E-ink",
     aliases: ["ebook", "kindle", "paper", "grayscale", "monochrome"],
+    chartStyle: "dither",
     frameShape: "square",
     refreshPalette: "mono",
   },
@@ -59,6 +66,7 @@ export const THEME_DEFINITIONS = [
     id: "live",
     label: "Live",
     aliases: ["glass", "sky", "time", "daylight", "dynamic"],
+    chartStyle: "smooth",
     frameShape: "rounded",
     refreshPalette: "ocean",
   },
@@ -86,6 +94,10 @@ export function themeLabel(theme: ThemeId): string {
 export function themeSearchText(theme: ThemeId): string {
   const definition = themeDefinition(theme);
   return [definition.id, definition.label, ...definition.aliases].join(" ");
+}
+
+export function themeChartStyle(theme: ThemeId): ThemeChartStyle {
+  return themeDefinition(theme).chartStyle;
 }
 
 export function themeFrameShape(theme: ThemeId): ThemeFrameShape {

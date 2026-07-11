@@ -101,6 +101,10 @@ function getSnapshot(): ThemeId {
   return isThemeId(current) ? current : DEFAULT_THEME;
 }
 
+function getServerSnapshot(): ThemeId {
+  return DEFAULT_THEME;
+}
+
 function notifyThemeListeners(): void {
   listeners.forEach((notify) => notify());
 }
@@ -121,5 +125,5 @@ export function syncThemeWithAppearance(appearance?: ThemeAppearanceInput | null
 }
 
 export function useTheme(): [ThemeId, (theme: ThemeId) => void] {
-  return [useSyncExternalStore(subscribe, getSnapshot), setTheme];
+  return [useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot), setTheme];
 }

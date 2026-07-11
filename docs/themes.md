@@ -7,7 +7,7 @@ The public engine default theme is `basic`. It lives in `src/index.css` because 
 ## Add A Theme
 
 1. Add a definition to `src/shared/themes.ts`.
-   Include `id`, `label`, useful command-search `aliases`, `frameShape`, and `refreshPalette`.
+   Include `id`, `label`, useful command-search `aliases`, `chartStyle`, `frameShape`, and `refreshPalette`.
 2. Add `src/themes/<id>.css`.
    Start with token overrides under `:root[data-theme="<id>"]`.
 3. Import it from `src/index.css`.
@@ -33,18 +33,23 @@ Every theme should review these tokens before adding component-specific CSS:
 - success, warning, danger, and their soft fills
 - accent
 - calendar palette `--color-cal-1` through `--color-cal-6`
+- sans, mono, and display font families
 - card radius, border width, border color, padding, shadow, backdrop, gap
 - focus ring
 - layout gap and safe titlebar rhythm when needed
 
 Prefer token-only themes. They are easier to reason about, work across existing and future card blocks, and are less likely to break on small component changes.
 
+`--font-display` controls focal values such as the large number in a metric block. It defaults to `--font-mono`, so themes only need to override it when they have a suitable display face. Keep labels, units, metadata, and settings on `--font-sans` or `--font-mono`; decorative display fonts should not spread into dense interface text. The e-ink theme uses the self-hosted Geist Pixel Latin subset under the SIL Open Font License.
+
+Themes can also select behavior traits in `src/shared/themes.ts` when tokens are not enough. `chartStyle` keeps card data semantic (`line` or `bars`) while choosing the shared chart renderer: `smooth` uses vector SVG and `dither` uses a low-resolution ordered-dot canvas. E-ink opts into `dither`; other built-in themes currently use `smooth`. Dither themes can tune dot resolution with the unitless CSS-pixel value `--chart-dither-pixel-size` and fill coverage with the `--chart-dither-density` multiplier.
+
 ## Immersive Themes
 
 Immersive themes can use component selectors when tokens are not enough. `classic-macos`, `e-ink`, and `live` are examples:
 
 - `classic-macos` turns card chrome into window chrome.
-- `e-ink` changes the header layout and adds a paper texture.
+- `e-ink` changes the header layout, adds a paper texture, and selects dithered charts.
 - `live` paints a time-of-day sky behind translucent cards.
 
 Keep these overrides scoped to `:root[data-theme="<id>"]`. Do not add card-specific styling for one private dashboard. If a recurring runtime behavior is needed, add a registry trait in `src/shared/themes.ts` instead of hardcoding theme IDs in React components.
