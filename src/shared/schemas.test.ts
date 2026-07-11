@@ -125,7 +125,7 @@ describe("cardDefinitionSchema", () => {
       schemaVersion: 1,
       type: "visual-card",
       connectors: ["demo"],
-      freshness: { connector: "demo", label: "demo", staleAfterSeconds: 90 },
+      freshness: { connector: "demo", label: "demo", staleAfterSeconds: 90, timestampPath: "demo.generatedAt" },
       visual: { icon: "calendar-days", accent: "purple" },
       blocks: [
         {

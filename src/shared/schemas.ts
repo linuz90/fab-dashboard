@@ -332,6 +332,7 @@ export const cardDefinitionSchema = z.object({
     connector: slugSchema.optional(),
     label: z.string().max(40).optional(),
     staleAfterSeconds: z.number().int().min(1).optional(),
+    timestampPath: dataPathSchema.optional(),
   }).strict().optional(),
   visual: z.object({
     icon: iconNameSchema.optional(),

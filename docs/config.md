@@ -46,7 +46,7 @@ Secret references are strings such as `env:OPENWEATHER_API_KEY` or `file:/absolu
 
 The tracked `examples/connectors/*` fixtures are safe `static` connectors. They are useful for visual parity and schema coverage, but they are not live personal data. Put real local connectors in your dashboard home instead, usually `~/.config/fab-dashboard/connectors`.
 
-Freshness metadata controls the visible source label. `freshness.label` is shown as `source · age` when the connector has fetched data. `freshness.staleAfterSeconds` can make that visible label use stale tone even when the connector itself has no TTL.
+Freshness metadata controls the visible source label. `freshness.label` is shown as `source · age` when the connector has fetched data. `freshness.staleAfterSeconds` can make that visible label use stale tone even when the connector itself has no TTL. For connectors that return an older precomputed snapshot, set `freshness.timestampPath` to that ISO timestamp in card data so the visible age and stale tone describe the snapshot rather than the recent HTTP fetch.
 
 Use `bun run cli doctor --json` to inspect the active config home. `dashboardCards` and `dashboardConnectors` describe the current `dashboard.json`; `catalogCards` and `catalogConnectors` include local plus tracked example definitions. Use `bun run cli doctor --fetch --json` for opt-in connector health diagnostics. Fetch diagnostics touch only active dashboard connectors, but they may call local commands, local TypeScript connectors, or remote APIs.
 

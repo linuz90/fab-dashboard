@@ -1,5 +1,6 @@
 import { agoLabel } from "../lib/time";
 import { Blocks, CardProblem } from "../renderer/BlockRenderer";
+import { resolvePath } from "../renderer/dataPath";
 import { DashboardIcon } from "../renderer/icons";
 import type { ResolvedCard, SourceFreshness } from "../shared/schemas";
 import { CardShell, ErrorCard } from "./CardShell";
@@ -13,15 +14,24 @@ export function freshnessFor(card: ResolvedCard, now: number): { label: string; 
   if (!freshnessEntry) return null;
   const [connectorId, freshness] = freshnessEntry;
   if (!freshness) return null;
+  const timestampPath = card.definition?.freshness?.timestampPath;
+  const timestampValue = timestampPath ? resolvePath(card.data, timestampPath) : null;
+  const dataTimestamp = typeof timestampValue === "string" && Number.isFinite(Date.parse(timestampValue))
+    ? timestampValue
+    : null;
+  // Some connectors serve precomputed snapshots. Their HTTP fetch time is
+  // recent even when the snapshot itself is old, so let the card point at the
+  // payload's source timestamp for honest age and stale-state reporting.
+  const effectiveFreshness = dataTimestamp ? { ...freshness, fetchedAt: dataTimestamp } : freshness;
   let tone: "ok" | "stale" | "error" = freshness.status === "fresh" ? "ok" : freshness.status;
   const staleAfterSeconds = card.definition?.freshness?.staleAfterSeconds;
-  if (tone === "ok" && staleAfterSeconds && freshness.fetchedAt) {
-    const fetchedAt = Date.parse(freshness.fetchedAt);
+  if (tone === "ok" && staleAfterSeconds && effectiveFreshness.fetchedAt) {
+    const fetchedAt = Date.parse(effectiveFreshness.fetchedAt);
     if (Number.isFinite(fetchedAt) && now - fetchedAt > staleAfterSeconds * 1000) tone = "stale";
   }
   const source = card.definition?.freshness?.label ?? connectorId ?? freshness.status;
   return {
-    label: freshnessLabel(freshness, source, now),
+    label: freshnessLabel(effectiveFreshness, source, now),
     tone,
   };
 }
