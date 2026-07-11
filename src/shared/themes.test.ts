@@ -10,6 +10,7 @@ import {
   normalizeThemeId,
   resolveDefaultTheme,
   resolveSelectableThemes,
+  themeChartStyle,
   themeFrameShape,
   themeLabel,
   themeRefreshPalette,
@@ -36,7 +37,10 @@ describe("theme registry", () => {
     expect(normalizeThemeChoice("e-ink", { defaultTheme: "live", themes: ["apple", "live"] })).toBe("live");
   });
 
-  test("exposes frame and refresh traits for card chrome", () => {
+  test("exposes chart, frame, and refresh traits", () => {
+    expect(themeChartStyle("e-ink")).toBe("dither");
+    expect(themeChartStyle("basic")).toBe("smooth");
+    expect(themeChartStyle("live")).toBe("smooth");
     expect(themeFrameShape("classic-macos")).toBe("square");
     expect(themeFrameShape("e-ink")).toBe("square");
     expect(themeFrameShape("basic")).toBe("rounded");

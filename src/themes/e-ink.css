@@ -40,6 +40,12 @@
 
   --focus-ring-color: var(--color-fg);
   --focus-ring-halo: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+
+  /* The renderer reads these as unitless CSS-pixel resolution and Bayer
+     threshold multiplier, so this theme can tune its ink without changing
+     card data or chart geometry. */
+  --chart-dither-pixel-size: 1;
+  --chart-dither-density: 1.12;
 }
 
 :root[data-theme="e-ink"]
