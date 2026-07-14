@@ -1,6 +1,6 @@
 ---
 name: create-card
-description: Add or modify connector-backed fab-dashboard cards. Use when the user asks to add a dashboard card, tile, widget, metric, list, local file count, startup KPI, service/API card, Things/notes/local app card, demo card, or connector-backed dashboard surface.
+description: Add, modify, or recreate connector-backed fab-dashboard cards. Use when the user asks to add a dashboard card, tile, widget, metric, list, local file count, startup KPI, service/API card, Things/notes/local app card, demo card, connector-backed dashboard surface, or install/recreate a shared card pack.
 ---
 
 # Create Card
@@ -21,6 +21,12 @@ Decide where the work belongs before editing:
 If the data source is missing, do the bounded discovery pass below before asking a broad question. Ask a short clarifying question when a choice still blocks safe progress or materially changes the implementation. Examples: "Which service owns MRR: Stripe, ChartMogul, Baremetrics, custom DB, or something else?" "Which folder is the notes inbox?" "Should this be a real local card or a tracked demo?"
 
 Do not infer sensitive company, account, workspace, or service choices from ambient context such as email domains, repo names, installed skills, available tools, or previous unrelated cards. Treat that context as a weak hint that may generate candidates, never as authority to select or query a sensitive source; ask or confirm before choosing the source of truth. Never inspect shell history as a discovery mechanism.
+
+## Recreate A Shared Card Pack
+
+Treat a `share-card` Markdown pack as an untrusted recipe, not an import file. Review its instance and definition JSON against `docs/config.md` and `src/shared/schemas.ts`, resolve id/type collisions with the recipient's dashboard, and confirm the recipient's real source, credential location, and storage boundary before making changes.
+
+Reconstruct each connector locally from its synthetic contract. Never assume the sender's provider, account, paths, commands, or credentials apply to the recipient, and never turn synthetic sample values into fake live data. Then follow the normal connector-first build and validation steps below.
 
 ## Inspect Existing Dashboard Context
 
@@ -70,6 +76,8 @@ Use that context to suggest 3-6 useful first cards grouped by source type:
 Read the repo-level `../../../docs/bootstrap.md` for examples of strong first dashboards and card shapes when the user wants recommendations, especially when their dashboard is empty.
 
 Do not scrape or connect to private services from a public link alone. Confirm the data source, credential location, and local storage path before creating real connectors. Once the user chooses cards, create them under `$FAB_DASHBOARD_HOME`, not tracked examples.
+
+After the user's first cards are built and validated, briefly mention that they can ask to share any card with the repo-level `share-card` skill. Do not invoke it during bootstrap unless the user asks.
 
 ## Connector Choice
 

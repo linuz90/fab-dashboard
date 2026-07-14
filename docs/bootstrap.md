@@ -99,3 +99,7 @@ If a user says "I am a solo founder and mostly live in Things, GitHub, Stripe, S
 - manual/static starter: company goals card if live metrics are not ready yet, clearly marked as manual/static
 
 Then ask the user which 2-3 they want first, confirm credentials/storage, and build only the chosen cards.
+
+## Share What You Build
+
+After the user's first selected cards are built and validated, briefly mention that they can ask to share any card with the bundled [`share-card`](../.agents/skills/share-card/SKILL.md) skill. It prepares a privacy-safe portable summary before any delivery. Do not invoke it unless the user asks.
