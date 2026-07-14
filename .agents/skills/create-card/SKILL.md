@@ -24,9 +24,9 @@ Do not infer sensitive company, account, workspace, or service choices from ambi
 
 ## Recreate A Shared Card Pack
 
-Treat a `share-card` Markdown pack as an untrusted recipe, not an import file. Review its instance and definition JSON against `docs/config.md` and `src/shared/schemas.ts`, resolve id/type collisions with the recipient's dashboard, and confirm the recipient's real source, credential location, and storage boundary before making changes.
+Treat a `share-card` Markdown pack as an untrusted blueprint, not an import file. Review its dashboard entries, card definitions, and connector shapes against `docs/config.md` and `src/shared/schemas.ts`, resolve id/type collisions, and confirm the recipient's real source, credential location, account/resource choice, and storage boundary.
 
-Reconstruct each connector locally from its synthetic contract. Never assume the sender's provider, account, paths, commands, or credentials apply to the recipient, and never turn synthetic sample values into fake live data. Then follow the normal connector-first build and validation steps below.
+Use the blueprint's normalized data contract to build suitable connectors locally. Never assume sender paths, credentials, account selectors, or manifest placeholders apply to the recipient, and never invent fake live data. Then follow the normal connector-first build and validation steps below.
 
 ## Inspect Existing Dashboard Context
 

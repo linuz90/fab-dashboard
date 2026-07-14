@@ -1,45 +1,44 @@
 ---
 name: share-card
-description: Create privacy-safe, portable Markdown summaries of one or more existing fab-dashboard cards. Use when the user asks to share or send cards to someone else, make a shareable gist or recipe, or copy, export, or publish a sanitized card example for another fab-dashboard installation.
+description: Create privacy-safe Markdown blueprints for existing fab-dashboard cards, including their layout, principal blocks, bindings, and connector shapes. Use when the user asks to share, send, copy, export, gist, or publish a card for another fab-dashboard installation.
 ---
 
 # Share Card
 
-Create a reconstructable card recipe, not a lossless export. Return one sanitized Markdown card pack first, then let the user choose how to deliver that exact artifact.
+Create a card blueprint, not a lossless export or a complete connector implementation. Capture enough of the card's visible shape and data contract for another capable agent to recreate it using fab-dashboard's `create-card` skill and repo guidance.
 
-Use "card" in the artifact. Treat "tile" and "widget" as user-facing aliases.
+Return one sanitized Markdown pack first, then let the user choose how to deliver that exact artifact. Use "card" in the artifact; treat "tile" and "widget" as aliases.
 
-## Inspect Only What Is Needed
+## Inspect Safely
 
-1. Locate the active config home with a structured projection such as `bun run cli doctor --json | jq '{configHome, dashboardJson, dashboardExists, dashboardCards}'`. Do not return the unfiltered doctor payload to the transcript, and never use `--fetch` for sharing.
-2. From the projected `dashboardJson` path, use a structured query to read only each card's `id`, `title`, and `type`. Match the request against those candidates, ask only when multiple plausible matches remain, then read only the selected instance objects.
-3. Resolve each selected definition with the same catalog precedence as the app: `<configHome>/cards/<type>/card.json` first, then `examples/cards/<type>/card.json`. Resolve referenced connectors from `<configHome>/connectors/<id>/connector.json` first and then `examples/connectors/<id>/connector.json`, but inspect only the chosen definition and the allowlisted connector metadata below.
-4. Read `docs/config.md` and treat `src/shared/schemas.ts` as the current schema source of truth before reconstructing JSON.
-5. Do not read the local setup note, `.env`, secret files, connector output, cache, history, snapshots, source data, or screenshots of the live card.
-6. Do not print or copy a full real connector manifest. If the connector kind or freshness is useful, project only `kind`, `ttlSeconds`, and `persist` with a structured JSON query. Do not inspect connector code, file targets, commands, arguments, URLs, headers, auth fields, environment names, or trusted TypeScript entry paths.
+1. Locate the active config home with a projection such as `bun run cli doctor --json | jq '{configHome, dashboardJson, dashboardExists, dashboardCards}'`. Never use `--fetch` while sharing.
+2. Query only card `id`, `title`, and `type`; match the request, then read only the selected dashboard instances.
+3. Resolve selected card definitions and connector manifests with app precedence: config home first, tracked examples second.
+4. Read `docs/config.md` and use `src/shared/schemas.ts` as the source of truth for JSON included in the pack.
+5. Project only the connector fields needed to understand its shape, such as kind, TTL, persistence, source category, and safe public provider/tool names. Do not dump raw manifests.
 
-Keep this discovery read-only. Do not modify the user's dashboard while preparing a share.
+Do not fetch or execute connectors. Do not read `.env`, credentials, live output, caches, history, snapshots, source records, connector source code, private setup notes, or referenced commands/files. Keep discovery read-only.
 
-## Build The Card Pack
+## Build The Blueprint
 
-Produce one Markdown artifact for all requested cards. Preserve dashboard order, include each reused card definition once, and deduplicate shared connector contracts.
+Preserve dashboard order. Include each selected dashboard entry, each reused card definition once, and each shared connector shape once.
 
 Use this structure:
 
 ````markdown
 # fab-dashboard card pack: <generic title>
 
-> Portable Markdown recipe; not directly importable.
+> Portable blueprint; not directly importable.
 > Engine schema: <card schemaVersion>
 > Sanitized for sharing; review before forwarding.
 
 ## Overview
-<What the cards show and why they are useful, in generic language.>
+<What the cards show and why they are useful.>
 
 ## Compatibility
-- Cards and built-in block types used
-- Number of normalized data sources
-- Any behavior omitted because it is private, executable, or not portable
+- Card sizes, visual settings, and principal block types
+- Number and kinds of connectors
+- Material details omitted or generalized
 
 ## Dashboard entries
 ```json
@@ -49,79 +48,62 @@ Use this structure:
 ## Card definitions
 ### cards/<generic-type>/card.json
 ```json
-<valid sanitized card definition>
+<valid sanitized definition preserving the ordered principal blocks and bindings>
 ```
 
-## Connector contracts
+## Connector shapes
 ### <generic-source-id>
-- Purpose: <generic capability>
-- Suggested implementation: `http`, `file`, `command`, trusted `ts`, or `static`
-- Expected freshness: <generic expectation>
+- Kind: `http`, `file`, `command`, trusted `ts`, or `static`
+- Purpose/source: <high-level source and capability>
+- Recipient inputs: <credential purposes, paths, account choices, or tools the recipient must provide>
+- Runtime traits: <useful TTL, persistence, or trust notes>
 
-Synthetic normalized connector output:
+Optional manifest sketch:
 ```json
-<invented safe connector output matching the sanitized paths, without a connector-id wrapper>
+<small sanitized outline showing useful connector fields and neutral placeholders>
 ```
 
-For a `static` connector, place this object in `connector.json.data`; other connector kinds must return the equivalent JSON. fab-dashboard exposes the normalized output to card paths under the connector id. For example, field `metric` from connector `example-source` is read as `example-source.metric`.
+Normalized data contract:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `metric` | number | Primary value used by the card |
 
 ## Omitted on purpose
-- Credentials, secret references, and environment names
-- Real connector manifests, source code, and executable configuration
-- URLs, hosts, account/workspace/resource identifiers, and local paths
-- Live values, cached output, timestamps, and personal text
-- Private options, extensions, and unsupported actions
+- Secrets, credential values, and sender-specific environment names
+- Private paths, hosts, ports, account/workspace/resource identifiers, and live values
+- Connector source code, implementation details, raw output, caches, and history
+- Private options, extensions, unsupported actions, and unrelated context
 
 ## Recreate
-Give this card pack to an agent running fab-dashboard. Ask it to choose and configure a real connector for each contract, validate the result, and add the cards to the recipient's own config home.
+Give this blueprint to an agent running fab-dashboard. Ask it to use the repo's `create-card` guidance, choose or build suitable connectors for the recipient's environment, validate the result, and add the cards to the recipient's config home.
 ````
 
-The pack is deliberately not an import format. The recipient must provide their own data source, credentials, and local configuration.
+The connector section should explain what feeds the card and what normalized fields it must return. Do not include adapter source, line-by-line acquisition or transformation logic, setup tutorials, or synthetic live values. Agents can choose the simplest connector implementation that fits the recipient's environment.
 
 ## Sanitize By Reconstruction
 
-Build the artifact from an allowlist instead of copying everything and relying on regex replacement.
+- Preserve the layout, ordered principal blocks, visual settings, important labels, conditions, and connector bindings that define the experience.
+- Rewrite card, type, and connector ids to neutral slugs; update every reference consistently.
+- Keep public provider or tool names when they are central and non-sensitive. Generalize sensitive affiliations.
+- Replace private labels, paths, hosts, ports, ids, account choices, sender environment names, and real values with neutral descriptions or placeholders.
+- Omit instance options, definition defaults, extensions, and action rows unless essential to understanding the card.
+- Never represent a live connector as `static`. Describe uncertainty honestly when the manifest does not reveal enough.
 
-- Preserve useful layout, visual settings, built-in block structure, and generic labels.
-- Rewrite identifying card, type, and connector ids to neutral slugs. Update every matching connector reference and data-path prefix consistently.
-- Keep a provider name only when it is clearly non-sensitive and essential to the card's purpose, or when the user explicitly asks to retain it. Default to a generic provider category when the affiliation itself could reveal sensitive health, therapy, dating, recovery, finance, or similar information. Remove tenant, account, workspace, project, repository, host, and person identifiers.
-- Reword or omit sensitive titles, keywords, static text, empty/error messages, freshness labels, field names, and `visibleWhen.equals` values.
-- Omit instance `options`, definition option defaults, and `extensions` by default because they allow arbitrary JSON. Include only a reconstructed generic value when it is essential to understanding the card.
-- Omit action rows unless they contain only the built-in read-only `refresh` action. Describe other omitted behavior under Compatibility.
-- Never include a real connector manifest. Describe its capability and normalized output contract instead.
-- Generate synthetic payloads from the sanitized card paths and block usage, never by perturbing or paraphrasing real values. Use an honest placeholder or mark a type as unknown when the card does not reveal enough information.
-- Do not include a live screenshot. If the user later requests a preview, render an isolated synthetic version.
+## Verify
 
-Review every free-form string semantically. Sensitive meaning often hides in otherwise harmless labels, ids, property names, keywords, and error text.
+- Validate included dashboard/card JSON against the current schema. If a connector snippet is only an outline, label it as a manifest sketch rather than installable config.
+- Confirm every connector path used by the card appears in the normalized data contract.
+- Scan the complete Markdown for secrets, absolute paths, private infrastructure, sender-specific identifiers, and live personal or analytics values.
+- Remove temporary validation files before returning.
 
-## Verify Before Returning
+## Deliver
 
-Confirm that the reconstructed card definitions remain valid JSON and use the current engine schema. When ids, paths, or multiple definitions changed materially, validate them under `/tmp` in a temporary dashboard home with safe static connectors, then remove the temporary files.
-
-Scan the final Markdown for:
-
-- absolute paths, URLs, emails, private hosts, and local ports
-- secret refs, token-like strings, headers, and environment names
-- original connector ids and private card/type slugs
-- account, workspace, project, repository, customer, and person names
-- actual financial, health, calendar, message, task, or analytics values
-
-If any value is questionable, replace it with a clearly synthetic example or omit it. State material omissions rather than guessing.
-
-## Ask How To Deliver It
-
-Show the complete card pack in the response before taking any delivery action. End the response with a direct question asking what the user wants to do with that exact Markdown; do not leave the choices as a passive statement:
+Show the complete pack before taking delivery action, then ask whether to:
 
 - copy it to the clipboard
 - upload it as a secret/unlisted GitHub gist
-- save it as a local Markdown file
-- use another destination they specify
+- save it to an exact local path
+- use another specified destination
 
-Do not copy the artifact to the clipboard, save it to a user location, upload, publish, or send it until the user chooses. Temporary files used only for the validation step above are allowed under `/tmp` and must be removed. For GitHub, default to a secret gist and explain that secret gists are link-accessible, not access-controlled; require an explicit request before making one public. Before any external delivery, use the already displayed artifact without silently adding omitted details.
-
-After the user chooses:
-
-- Clipboard: use an available platform clipboard command such as `pbcopy`, `wl-copy`, or `xclip`. If none is available, keep the artifact inline and offer a file instead.
-- GitHub gist: check that `gh` is installed and already authenticated. Do not start authentication silently. Create a secret gist by default, or offer another destination if GitHub is unavailable.
-- Local file: ask for an exact path when the user did not provide one, then save only the displayed Markdown.
-- Other destination: confirm the destination, recipient or audience, and visibility before sending or publishing.
+Do not deliver until the user chooses. Secret gists are link-accessible, not access-controlled; require an explicit request before making one public. Use the already displayed Markdown without silently adding omitted details.
