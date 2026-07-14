@@ -46,14 +46,22 @@ Add a tasks card with my to-dos, which are in Things on my Mac.
 Add a card that shows my Codex and Claude usage for the day.
 ```
 
-The agent will:
+You can also share a card without exposing its private data or executable connector configuration:
+
+```txt
+Prepare my tasks and calendar cards so I can share them with a friend.
+```
+
+When creating cards, the agent will:
 
 - inspect your active dashboard with `bun run cli doctor --json`, then read existing cards and connectors so it fits your layout instead of clobbering it
 - suggest concrete cards grouped by source: local files/apps, an API with a key, a command/script connector, or a manual/static starter
 - choose the connector shape that honestly matches each source: `http`, `file`, `command`, trusted `ts`, or `static`
 - wire real data safely: API keys go in `$FAB_DASHBOARD_HOME/.env`, real cards stay in your config home, and private data does not get committed to this engine repo
 
-The interview-then-build flow is described in [docs/bootstrap.md](docs/bootstrap.md), and the card workflow lives in the bundled [`create-card`](.agents/skills/create-card/SKILL.md) skill and [AGENTS.md](AGENTS.md), which both Codex and Claude read automatically.
+When sharing, the agent prepares a privacy-safe card pack first, then lets you choose clipboard, a secret GitHub gist, a local file, or another destination.
+
+The interview-then-build flow is described in [docs/bootstrap.md](docs/bootstrap.md). Card creation and sharing live in the bundled [`create-card`](.agents/skills/create-card/SKILL.md) and [`share-card`](.agents/skills/share-card/SKILL.md) skills, while [AGENTS.md](AGENTS.md) carries the shared repo rules that Codex and Claude read automatically.
 
 This is a clone-and-run project by design, not an npm package: you clone the whole engine so your agent has the source, skills, and repo instructions on hand to build and validate cards locally. `package.json` stays `private: true` to prevent accidental publication while the GitHub repository can still be public.
 

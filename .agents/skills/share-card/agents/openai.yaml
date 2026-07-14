@@ -1,0 +1,4 @@
+interface:
+  display_name: "Share Card"
+  short_description: "Create privacy-safe card sharing bundles"
+  default_prompt: "Use $share-card to prepare a privacy-safe share bundle for one or more dashboard cards."

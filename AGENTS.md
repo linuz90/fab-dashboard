@@ -45,7 +45,7 @@ Use `local/` only for temporary development homes, demos, branch-local staging, 
 
 Agents should treat `$FAB_DASHBOARD_HOME/README.md` as the user's private operating note for this dashboard. It is outside the public repo and may describe how the dashboard is served, which service manager owns it, Tailscale/private URLs, non-secret environment variable names, restart commands, companion local APIs, and refresh jobs that feed connectors.
 
-When inspecting a real dashboard, run `bun run cli doctor --json` and read `setupReadme` if `setupReadmeExists` is true. When creating or changing a service, Tailscale Serve setup, trusted origin, local companion API, refresh job, or important local path, create or update this note. Keep secrets and tokens out of it; reference secret locations such as `$FAB_DASHBOARD_HOME/.env` instead.
+Read or update this note when the active card or service workflow calls for it. Keep secrets and tokens out of the note; reference secret locations such as `$FAB_DASHBOARD_HOME/.env` instead.
 
 ## Public Repo Boundary
 
@@ -53,23 +53,13 @@ This repository is the public, reusable dashboard engine. Agents may edit tracke
 
 Keep user-specific dashboards in `$FAB_DASHBOARD_HOME`, not in tracked files. Do not change repo source just to add a private card unless the card reveals a reusable engine capability that is missing. When making reusable repo changes, keep them generic and add docs/examples/tests as appropriate. Tracked demo data must be reproducible, safe to screenshot, and free of private account data, secrets, local paths, personal snapshots, or sensitive user details. Public, recognizable references are okay when they make examples easier to understand.
 
-## Card + Connector Workflow
+## Card Workflows
 
-When adding or modifying a card, use `.agents/skills/create-card` and read [docs/config.md](docs/config.md) for schema/block details. If a user says "tile" or "widget", translate that to card terminology.
+- Use `.agents/skills/create-card` when creating or modifying cards, helping with an empty dashboard, or recreating a shared card pack. It owns data-source discovery, privacy boundaries, config placement, connector design, and validation. Read [docs/bootstrap.md](docs/bootstrap.md) and [docs/config.md](docs/config.md) when that skill directs you to them.
+- Use `.agents/skills/share-card` when sharing one or more cards. It owns sanitization, the portable card-pack structure, and approval before clipboard, file, gist, or other delivery.
+- Use **card** in implementation and docs. Treat "tile" and "widget" as user-facing aliases.
 
-Before proposing or changing a real dashboard card, inspect the active config home with `bun run cli doctor --json`, then read the active `$FAB_DASHBOARD_HOME/dashboard.json` and relevant existing card/connector definitions. Preserve layout/order, visual density, header widgets, connector reuse, and id/type uniqueness. Use `bun run cli doctor --fetch` only when connector health diagnostics are needed, because it may call local commands or remote APIs.
-
-Also read the local setup note reported by `doctor --json` when it exists, especially before adding cards that depend on companion services, scheduled snapshots, command connectors, or private APIs.
-
-When the user knows what they want to see but not how to source it, treat data acquisition as part of the card design. Do a bounded read-only discovery pass and offer the simplest viable routes: an existing connector or companion endpoint, an installed CLI or export/snapshot workflow, a documented local file/database, an official API with narrowly scoped credentials, or a small user-owned command/TypeScript adapter. Discovered tools, repos, and authenticated accounts are candidates, not authorization: confirm the source of truth, account/workspace/resource, and credential location before querying private data, and ask before starting OAuth, creating API keys, expanding scopes, provisioning services, or incurring cost.
-
-Every real card should have a connector and live under `$FAB_DASHBOARD_HOME`, usually `~/.config/fab-dashboard`. Ask/confirm unclear data sources, credentials, and local paths; do not infer sensitive company/account/service choices from ambient context. Do not hardcode personal/live values in card JSON, commit secrets or private scripts, or add repo source just for a private card unless the card reveals a missing reusable engine capability.
-
-## Empty Dashboard Bootstrap
-
-When the user asks for help getting started, inspect the explicit or default config home first, for example with `bun run cli doctor --json`. Use `dashboardCards` and `dashboardConnectors` for the bootstrap decision; `catalogCards` and `catalogConnectors` include tracked examples and do not mean the user's dashboard has content.
-
-If the active dashboard is empty, read [docs/bootstrap.md](docs/bootstrap.md), then ask who the user is, what they care about, and which apps/tools/services matter most in their day. Suggest 3-6 concrete starter cards grouped by source type, confirm data sources and credential/storage locations, and build only the cards the user chooses. Do not add personal starter cards, private scripts, or live data to tracked examples.
+Keep `AGENTS.md` at this routing level. Detailed card procedures belong in the skills and their referenced docs.
 
 ## Serving + PWA Workflow
 
