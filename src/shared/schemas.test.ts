@@ -95,6 +95,110 @@ describe("dashboardConfigSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  test("accepts ordered dashboard tabs with explicit card membership and empty tabs", () => {
+    const result = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "  Today  " },
+        { id: "system", label: "System" },
+        { id: "later", label: "Later" },
+      ],
+      cards: [
+        { id: "tasks", type: "demo", title: "Tasks", tab: "today" },
+        { id: "usage", type: "demo", title: "Usage", tab: "system" },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tabs?.map((tab) => tab.id)).toEqual(["today", "system", "later"]);
+      expect(result.data.tabs?.[0]?.label).toBe("Today");
+      expect(result.data.cards.map((card) => card.tab)).toEqual(["today", "system"]);
+    }
+  });
+
+  test("rejects invalid dashboard tab definitions", () => {
+    const oneTab = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [{ id: "today", label: "Today" }],
+      cards: [],
+    });
+    const tooManyTabs = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: Array.from({ length: 9 }, (_, index) => ({ id: `tab-${index}`, label: `Tab ${index}` })),
+      cards: [],
+    });
+    const duplicateTabs = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "today", label: "Again" },
+      ],
+      cards: [],
+    });
+    const blankLabel = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "   " },
+        { id: "system", label: "System" },
+      ],
+      cards: [],
+    });
+
+    expect(oneTab.success).toBe(false);
+    expect(tooManyTabs.success).toBe(false);
+    expect(duplicateTabs.success).toBe(false);
+    expect(blankLabel.success).toBe(false);
+  });
+
+  test("requires complete and valid tab membership only when dashboard tabs exist", () => {
+    const tabWithoutDefinitions = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      cards: [{ id: "tasks", type: "demo", title: "Tasks", tab: "today" }],
+    });
+    const missingMembership = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+      cards: [{ id: "tasks", type: "demo", title: "Tasks" }],
+    });
+    const unknownMembership = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+      cards: [{ id: "tasks", type: "demo", title: "Tasks", tab: "later" }],
+    });
+    const flatDashboard = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      cards: [{ id: "tasks", type: "demo", title: "Tasks" }],
+    });
+
+    expect(tabWithoutDefinitions.success).toBe(false);
+    expect(missingMembership.success).toBe(false);
+    expect(unknownMembership.success).toBe(false);
+    expect(flatDashboard.success).toBe(true);
+  });
+
+  test("keeps card ids globally unique across dashboard tabs", () => {
+    const result = dashboardConfigSchema.safeParse({
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+      cards: [
+        { id: "status", type: "demo", title: "Today status", tab: "today" },
+        { id: "status", type: "demo", title: "System status", tab: "system" },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   test("rejects duplicate header widget ids and unknown widget icons", () => {
     const duplicates = dashboardConfigSchema.safeParse({
       schemaVersion: 1,

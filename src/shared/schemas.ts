@@ -26,6 +26,12 @@ export const cardInstanceSchema = z.object({
   size: cardSizeSchema.default("half"),
   keywords: z.array(z.string().trim().min(1).max(48)).max(24).default([]),
   options: z.record(z.string(), z.unknown()).default({}),
+  tab: slugSchema.optional(),
+}).strict();
+
+export const dashboardTabSchema = z.object({
+  id: slugSchema,
+  label: z.string().trim().min(1).max(40),
 }).strict();
 
 const dataPathSchema = z.string().min(1).max(240);
@@ -115,6 +121,7 @@ export const dashboardConfigSchema = z.object({
   refreshSeconds: z.number().int().min(5).max(3600).default(30),
   header: dashboardHeaderSchema,
   appearance: dashboardAppearanceSchema,
+  tabs: z.array(dashboardTabSchema).min(2).max(8).optional(),
   cards: z.array(cardInstanceSchema).default([]),
   extensions: extensionMetadataSchema,
 }).strict().superRefine((config, ctx) => {
@@ -129,6 +136,48 @@ export const dashboardConfigSchema = z.object({
       path: ["cards", index, "id"],
       message: `duplicate card id "${card.id}"`,
     });
+  });
+
+  const tabIds = new Set<string>();
+  config.tabs?.forEach((tab, index) => {
+    if (!tabIds.has(tab.id)) {
+      tabIds.add(tab.id);
+      return;
+    }
+    ctx.addIssue({
+      code: "custom",
+      path: ["tabs", index, "id"],
+      message: `duplicate tab id "${tab.id}"`,
+    });
+  });
+
+  config.cards.forEach((card, index) => {
+    if (!config.tabs) {
+      if (card.tab) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["cards", index, "tab"],
+          message: `card tab "${card.tab}" requires top-level tabs`,
+        });
+      }
+      return;
+    }
+
+    if (!card.tab) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["cards", index, "tab"],
+        message: "cards in a tabbed dashboard must declare a tab",
+      });
+      return;
+    }
+    if (!tabIds.has(card.tab)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["cards", index, "tab"],
+        message: `unknown dashboard tab "${card.tab}"`,
+      });
+    }
   });
 
   const headerWidgetIds = new Set<string>();
@@ -146,6 +195,7 @@ export const dashboardConfigSchema = z.object({
 });
 
 export type CardInstance = z.infer<typeof cardInstanceSchema>;
+export type DashboardTab = z.infer<typeof dashboardTabSchema>;
 export type DashboardAppearance = z.infer<typeof dashboardAppearanceSchema>;
 export type HeaderWidgetDefinition = z.infer<typeof headerWidgetSchema>;
 export type DashboardConfig = z.infer<typeof dashboardConfigSchema>;

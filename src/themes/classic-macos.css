@@ -59,6 +59,10 @@
   --classic-dark: #111111;
   --classic-menubar: #d6d6d6;
   --classic-stripe: rgb(0 0 0 / 0.36);
+
+  --dashboard-tabs-header-gap: 0.25rem;
+  --dashboard-tabs-content-gap: 1rem;
+  --dashboard-tab-shadow: none;
 }
 
 /* The desktop color comes from the purple Mac OS 8/9 refs; keep it plain and
@@ -119,6 +123,42 @@
 :root[data-theme="classic-macos"] .app-actions > button svg {
   width: 12px;
   height: 12px;
+}
+
+/* A square, beveled segmented control belongs under the fixed menu bar. The
+   selected view uses the system selection blue instead of modern pill chrome. */
+:root[data-theme="classic-macos"] .dashboard-tabs {
+  gap: 0;
+  border: 1px solid var(--classic-dark);
+  border-radius: 0;
+  padding: 2px;
+  background: var(--classic-face);
+  box-shadow:
+    inset 1px 1px 0 var(--classic-highlight),
+    inset -1px -1px 0 var(--classic-shadow);
+}
+
+:root[data-theme="classic-macos"] .dashboard-tab-link {
+  border: 0;
+  border-radius: 0;
+  padding-inline: 0.7rem;
+  background: var(--classic-face);
+  color: var(--classic-dark);
+  font-family: var(--font-sans);
+  font-size: var(--type-ui-2xs);
+  text-shadow: 1px 1px 0 var(--classic-highlight);
+}
+
+:root[data-theme="classic-macos"] .dashboard-tab-link + .dashboard-tab-link {
+  border-left: 1px solid var(--classic-shadow);
+}
+
+:root[data-theme="classic-macos"] .dashboard-tab-link[aria-current="page"] {
+  border: 0;
+  background: var(--color-accent);
+  color: var(--classic-highlight);
+  box-shadow: inset 1px 1px 0 color-mix(in srgb, var(--classic-dark) 28%, transparent);
+  text-shadow: none;
 }
 
 :root[data-theme="classic-macos"] .card-surface {

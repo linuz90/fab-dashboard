@@ -91,4 +91,52 @@ describe("dashboard validation", () => {
 
     expect(response.capabilities).toEqual({ canMutateConfig: true, canReorderCards: true });
   });
+
+  test("eagerly resolves global header widgets and cards from every dashboard tab", async () => {
+    const root = await mkdtemp(join(tmpdir(), "fab-dashboard-tabs-response-"));
+    const paths = testPaths(root);
+
+    for (const id of ["today", "system"]) {
+      await writeJson(join(paths.localConnectorsDir, `${id}-source`, "connector.json"), {
+        schemaVersion: 1,
+        id: `${id}-source`,
+        kind: "static",
+        data: { label: id },
+      });
+      await writeJson(join(paths.localCardsDir, `${id}-card`, "card.json"), {
+        schemaVersion: 1,
+        type: `${id}-card`,
+        connectors: [`${id}-source`],
+        blocks: [{ type: "text", path: `${id}-source.label` }],
+      });
+    }
+    await writeJson(join(paths.localConnectorsDir, "global-source", "connector.json"), {
+      schemaVersion: 1,
+      id: "global-source",
+      kind: "static",
+      data: { label: "global" },
+    });
+    await writeJson(paths.dashboardJson, {
+      schemaVersion: 1,
+      header: {
+        widgets: [{ id: "global", kind: "label", connector: "global-source", labelPath: "global-source.label" }],
+      },
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+      cards: [
+        { id: "today", type: "today-card", title: "Today", tab: "today" },
+        { id: "system", type: "system-card", title: "System", tab: "system" },
+      ],
+    });
+
+    const response = await buildDashboardResponse(paths, createRuntime(paths));
+
+    expect(response.cards.map((card) => card.instance.id)).toEqual(["today", "system"]);
+    expect(response.cards[0]?.data["today-source"]).toEqual({ label: "today" });
+    expect(response.cards[1]?.data["system-source"]).toEqual({ label: "system" });
+    expect(response.header.widgets[0]?.label).toBe("global");
+    expect(Object.keys(response.sources).sort()).toEqual(["global-source", "system-source", "today-source"]);
+  });
 });

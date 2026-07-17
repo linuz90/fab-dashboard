@@ -46,6 +46,13 @@ Add a tasks card with my to-dos, which are in Things on my Mac.
 Add a card that shows my Codex and Claude usage for the day.
 ```
 
+As the dashboard grows, you can ask the agent to organize whole cards into a few stable views:
+
+```txt
+Organize my dashboard into a Today tab for personal cards and a System tab
+for usage, services, and logs. Keep the header widgets global.
+```
+
 You can also share a card without exposing its private data or executable connector configuration:
 
 ```txt
@@ -57,6 +64,7 @@ When creating cards, the agent will:
 - inspect your active dashboard with `bun run cli doctor --json`, then read existing cards and connectors so it fits your layout instead of clobbering it
 - suggest concrete cards grouped by source: local files/apps, an API with a key, a command/script connector, or a manual/static starter
 - choose the connector shape that honestly matches each source: `http`, `file`, `command`, trusted `ts`, or `static`
+- keep small dashboards flat, then suggest optional dashboard tabs when distinct contexts start competing for the same screen
 - wire real data safely: API keys go in `$FAB_DASHBOARD_HOME/.env`, real cards stay in your config home, and private data does not get committed to this engine repo
 
 When sharing, the agent prepares a privacy-safe card pack first, then lets you choose clipboard, a secret GitHub gist, a local file, or another destination.
@@ -145,7 +153,29 @@ A dashboard card has two parts:
 
 For example, a portfolio card can read `portfolio.allocation` and `portfolio.history` from a connector named `portfolio`. The card JSON stays reusable; the connector can later move from a static demo fixture to a file export, local command, or API.
 
-Reusable block primitives include `text`, `metric`, `rows`, `list`, `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`. See [docs/config.md](docs/config.md) for the schema shape and rendering options.
+Reusable block primitives include `text`, `metric`, `rows`, `list`, card-level `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`. See [docs/config.md](docs/config.md) for the schema shape and rendering options.
+
+## Optional Dashboard Tabs
+
+Dashboards start flat, including the public demo. When unrelated contexts begin competing for the same screen, top-level tabs can group whole cards into a few URL-addressable views:
+
+```json
+{
+  "schemaVersion": 1,
+  "tabs": [
+    { "id": "today", "label": "Today" },
+    { "id": "system", "label": "System" }
+  ],
+  "cards": [
+    { "id": "tasks", "type": "tasks", "title": "Tasks", "tab": "today" },
+    { "id": "usage", "type": "usage", "title": "Usage", "tab": "system" }
+  ]
+}
+```
+
+The first tab is selected at the root URL; other tabs use `?tab=<id>`. Command search remains global and can switch tabs before scrolling to a card. The title, header widgets, appearance, settings, and refresh behavior are global too.
+
+Tabs organize the interface, not connector loading. Every configured card and connector still resolves eagerly, including cards on inactive tabs. Once tabs are enabled, every card must name one declared tab; invalid or missing membership fails validation instead of silently hiding the card. See [docs/config.md](docs/config.md#dashboard-tabs) for the complete config and URL behavior.
 
 ## Appearance
 

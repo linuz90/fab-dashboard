@@ -30,9 +30,25 @@ For each recommended card, include:
 - what the card shows and why it belongs on the first dashboard
 - the likely connector kind: `http`, `file`, `command`, trusted `ts`, or `static`
 - what credentials, exports, local paths, or user choices are needed
-- a proposed card shape: key metric, rows, list, tabs, status, allocation, leaderboard, sparkline, or header widget
+- a proposed card shape: key metric, rows, list, card-level tabs, status, allocation, leaderboard, sparkline, or header widget
 
 Prefer cards that answer recurring questions: what needs attention, what changed, what is next, what is healthy/unhealthy, and what is worth celebrating. Avoid cards that are merely decorative, require fragile scraping, or need high-privilege admin keys before the user has opted in.
+
+Keep the first dashboard flat by default. A small board is easier to understand and rearrange before its long-term contexts are clear.
+
+## When To Offer Dashboard Tabs
+
+Offer optional dashboard-level tabs when the user names stable top-level contexts, asks for multiple dashboard views in one installation, or has unrelated groups of cards competing for the same screen. Prefer the fewest clear groups, such as Today and System.
+
+Before enabling tabs:
+
+- confirm the tab labels and which one should be the first/default view when that is not obvious
+- place every existing card into one declared tab in the same edit
+- keep the dashboard title and header widgets global
+- explain that command search stays global and can switch tabs to reach a card
+- do not present tabs as a performance feature; inactive-tab connectors still resolve eagerly
+
+Dashboard-level tabs group whole cards and appear in the URL. A card-level `tabs` block switches related content inside one card. If the active dashboard already declares top-level tabs, assign every new card to one valid destination tab and ask when placement is ambiguous.
 
 ## Strong First Dashboards
 
@@ -40,7 +56,7 @@ Use these as patterns, not templates to apply blindly.
 
 ### Builder / Developer
 
-- Today: calendar, Things/Todoist, or local notes. Use `tabs` for Today, Upcoming, Waiting; use compact `list` rows.
+- Today: calendar, Things/Todoist, or local notes. Use a card-level `tabs` block for Today, Upcoming, Waiting; use compact `list` rows.
 - Code queue: GitHub/GitLab PRs, issues, failing checks, or assigned reviews. Use `status`, `rows`, and a compact `feed` list.
 - Deploy health: Vercel, Render, Fly.io, GitHub Actions, Sentry, or Datadog. Use `status` plus rows for the latest deploy, error rate, and incidents.
 - Agent usage: local Codex/Claude logs, OpenAI/Anthropic admin APIs, or billing exports. Use `metric`, `rows`, and `sparkline`; distinguish local CLI logs from org-level billing APIs.
@@ -51,12 +67,12 @@ Use these as patterns, not templates to apply blindly.
 - Revenue pulse: Stripe, ChartMogul, Paddle, Lemon Squeezy, or a warehouse snapshot. Use `metric`, `sparkline`, and rows for MRR, trials, churn, or failed payments.
 - Product usage: PostHog, Plausible, TelemetryDeck, Amplitude, or a database/API snapshot. Use `metric` and `leaderboard` for active users, key events, or top flows.
 - Company performance: define the source first. It might be finance, product analytics, sales CRM, support, or a spreadsheet; do not infer the system from the company name.
-- Support queue: Intercom, Zendesk, Help Scout, Linear, or GitHub issues. Use `tabs` for Urgent, Waiting, Recently closed.
+- Support queue: Intercom, Zendesk, Help Scout, Linear, or GitHub issues. Use a card-level `tabs` block for Urgent, Waiting, Recently closed.
 - Calendar + focus: calendar API plus task app/local notes. Use a half card or a header widget for the next commitment.
 
 ### Personal Home Screen
 
-- Tasks: Things, Todoist, Apple Reminders export, or a local script. Use `tabs` for Today, Upcoming, Projects; for Things, first look for an existing local connector/script before reading local app data.
+- Tasks: Things, Todoist, Apple Reminders export, or a local script. Use a card-level `tabs` block for Today, Upcoming, Projects; for Things, first look for an existing local connector/script before reading local app data.
 - Calendar: Google Calendar, iCloud export, or local calendar cache. Use `list` or `timeline`; keep the next event visible.
 - Weather + commute: weather API, local public transit, or a manual place. Use a header weather widget plus a small rows card if more detail matters.
 - Media: Spotify, Last.fm, Plex, Jellyfin, or local playback snapshots. Use `media` list rows and progress.
@@ -71,14 +87,14 @@ Use these as patterns, not templates to apply blindly.
 
 ### Content / Community
 
-- Publishing queue: local drafts, Notion, GitHub issues, Linear, or a CMS API. Use `tabs` for Drafting, Scheduled, Shipped.
+- Publishing queue: local drafts, Notion, GitHub issues, Linear, or a CMS API. Use a card-level `tabs` block for Drafting, Scheduled, Shipped.
 - Social pulse: YouTube, GitHub, Mastodon, Bluesky, X, or analytics exports. Prefer official APIs or exports; avoid brittle scraping.
 - Bookmarks/research: Raindrop, Readwise, browser export, Zotero, or RSS. Use compact `feed` lists and chips.
 - Newsletter/blog metrics: Buttondown, Beehiiv, Ghost, Substack exports, Plausible, or a warehouse snapshot. Use `metric` and `sparkline`.
 
 ## Good Card Shapes
 
-- Use `tabs` when the user asked for a broad card with multiple modes, such as tasks by horizon, support by queue, portfolio by asset class, or analytics by period.
+- Use a card-level `tabs` block when the user asked for one broad card with multiple modes, such as tasks by horizon, support by queue, portfolio by asset class, or analytics by period.
 - Use `metric` plus `sparkline` for one number that should be watched over time.
 - Use `rows` for compact status facts where every row has a stable label.
 - Use `list` for tasks, events, feeds, media, alerts, and timelines.

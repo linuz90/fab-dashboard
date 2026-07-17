@@ -48,7 +48,42 @@ The tracked `examples/connectors/*` fixtures are safe `static` connectors. They 
 
 Freshness metadata controls the visible source label. `freshness.label` is shown as `source · age` when the connector has fetched data. `freshness.staleAfterSeconds` can make that visible label use stale tone even when the connector itself has no TTL. For connectors that return an older precomputed snapshot, set `freshness.timestampPath` to that ISO timestamp in card data so the visible age and stale tone describe the snapshot rather than the recent HTTP fetch.
 
-Use `bun run cli doctor --json` to inspect the active config home. `dashboardCards` and `dashboardConnectors` describe the current `dashboard.json`; `catalogCards` and `catalogConnectors` include local plus tracked example definitions. Use `bun run cli doctor --fetch --json` for opt-in connector health diagnostics. Fetch diagnostics touch only active dashboard connectors, but they may call local commands, local TypeScript connectors, or remote APIs.
+Use `bun run cli doctor --json` to inspect the active config home. `dashboardCards` and `dashboardConnectors` describe the current `dashboard.json`; `catalogCards` and `catalogConnectors` include local plus tracked example definitions. Use `bun run cli doctor --fetch --json` for opt-in connector health diagnostics. Fetch diagnostics touch only connectors used by the configured dashboard, including cards in inactive dashboard tabs, but they may call local commands, local TypeScript connectors, or remote APIs.
+
+## Dashboard Tabs
+
+Dashboard-level tabs are an optional, backward-compatible grouping layer over the flat `cards` array. Omit top-level `tabs` to keep the existing single-view dashboard behavior. This additive config keeps `schemaVersion: 1`, and the public demo intentionally stays flat.
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "fab-dashboard",
+  "tabs": [
+    { "id": "today", "label": "Today" },
+    { "id": "system", "label": "System" }
+  ],
+  "cards": [
+    { "id": "tasks", "type": "tasks", "title": "Tasks", "tab": "today" },
+    { "id": "usage", "type": "usage", "title": "Usage", "tab": "system" }
+  ]
+}
+```
+
+Top-level `tabs` contains 2-8 ordered definitions. Tab ids are 1-80 character lowercase slugs that start with a letter and then use only letters, numbers, and dashes; labels are trimmed, non-empty strings of at most 40 characters. Tab ids must be unique, and card ids remain globally unique across the entire dashboard.
+
+Membership is strict:
+
+- When top-level `tabs` is absent, card instances must not contain `tab`.
+- When top-level `tabs` is present, every card instance must name one declared tab. Missing and unknown references fail validation; they are never treated as hidden cards.
+- Declared tabs may be empty, which is useful while assembling a dashboard.
+
+Invalid tab membership follows the normal invalid-config behavior. If the server already has a valid config, it keeps that last-known-good dashboard running and reports the config warning. It does not partially apply the new file or silently drop unassigned cards.
+
+The first configured tab is the default and renders at the root URL without a `tab` query parameter. Other tabs use `?tab=<id>`, so a view can be reloaded, shared, or restored with Back/Forward. A default, unknown, removed, or no-longer-applicable `tab` parameter canonicalizes back to the root while preserving unrelated query parameters.
+
+Tabs group only cards. The dashboard title, header widgets, appearance, layout, refresh cadence, settings, and command search remain shared. Search includes cards and tab destinations across the entire dashboard and can switch views before scrolling to a selected card. The server also continues resolving every configured card and connector eagerly, including inactive tabs; dashboard tabs are an organizational boundary, not a data-loading or performance boundary.
+
+Dashboard-level tabs are different from a card definition's `tabs` block. Top-level `tabs` in `dashboard.json` switches groups of cards and is reflected in the URL. A card-level `tabs` block switches related content inside one card and may use its own persistence behavior.
 
 ## Appearance
 
@@ -117,9 +152,9 @@ Common blocks:
 - `list`: repeated items from `path`; supports `plain`, `check`, `timeline`, `feed`, and `media` variants, plus optional `density: "compact"` for tighter repeated surfaces. Compact density is currently optimized for feed-style lists.
 - `allocation`: stacked percentage bar plus keyed allocation rows. Use this for portfolio/category mixes where the row value is both a number and a visual share.
 - `leaderboard`: ranked rows with optional subtitle, value, delta, palette key, and progress bar. Use this for standings, holdings, or any compact ordered table.
-- `status`, `sparkline`, `group`, `tabs`, `divider`, and `action-row`.
+- `status`, `sparkline`, `group`, card-level `tabs`, `divider`, and `action-row`.
 
-`tabs.defaultTab` selects the initial tab, falling back to the first tab if needed. With `persist: true`, normal dashboard renders restore and save the active tab per card. With `persist: false`, a page load starts from `defaultTab`; tab changes survive card remounts and data refreshes for that page lifetime, but reset on reload. Inert card previews always start from `defaultTab` and never read or write either form of dashboard selection state.
+For a card-level `tabs` block, `tabs.defaultTab` selects the initial tab, falling back to the first tab if needed. With `persist: true`, normal dashboard renders restore and save the active tab per card. With `persist: false`, a page load starts from `defaultTab`; tab changes survive card remounts and data refreshes for that page lifetime, but reset on reload. Inert card previews always start from `defaultTab` and never read or write either form of dashboard selection state.
 
 `list` paths are item-relative. For example, `path: "feed.items"` plus `titlePath: "title"` reads `feed.items[].title`, not `feed.items[].feed.items.title`.
 
@@ -174,7 +209,7 @@ Real mutating/destructive actions need a later action API with confirmations, lo
 
 The settings modal can make narrow local edits to the active `dashboard.json`:
 
-- Card order uses `POST /api/dashboard/cards/reorder` with `{ "baseOrder": string[], "order": string[] }`; the server validates that both arrays match the current card ids, then atomically rewrites the raw card objects in the requested order without serializing schema defaults back into the file.
+- Card order uses `POST /api/dashboard/cards/reorder` with `{ "baseOrder": string[], "order": string[] }`; the server validates that both arrays match the current card ids, then atomically rewrites the raw card objects in the requested order without serializing schema defaults back into the file. Flat dashboards show one sortable list. Tabbed dashboards show one group per tab and support reordering within a tab; moving cards between tabs remains an explicit config or agent edit.
 - Layout uses `POST /api/dashboard/appearance/layout` with `{ "baseLayout": Layout, "layout": Layout }`, where each `Layout` is `{ "width"?: "small" | "medium" | "large" | "extra-large", "maxColumns"?: 1 | 2 | 3 | 4 }`; the server verifies `baseLayout` still matches the current file, updates only `appearance.layout`, and prunes default layout values back out of the file.
 
 These endpoints are intentionally separate from card `action-row` actions. They are enabled only for local dashboard requests, require a dashboard mutation header, use origin/fetch-site checks, and reject stale writes with `409` when the file changed before the save. Dashboards served from non-local hosts remain read-only. A localhost-bound dashboard may explicitly trust exact private proxy origins with `FAB_DASHBOARD_TRUSTED_CONFIG_ORIGINS`, primarily for Tailscale Serve; do not use that for Tailscale Funnel or unauthenticated public reverse proxies.

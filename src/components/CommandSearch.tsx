@@ -3,14 +3,10 @@ import { Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { setTheme } from "../lib/theme";
 import { MOBILE_COMMAND_PULL_MEDIA } from "../lib/useMobileCommandPull";
-import type { DashboardResponse, ResolvedCard } from "../shared/schemas";
+import type { DashboardResponse, DashboardTab, ResolvedCard } from "../shared/schemas";
 import { resolveSelectableThemes, themeLabel, themeSearchText, type ThemeId } from "../shared/themes";
 import { CardInteractionModeProvider } from "./CardInteractionMode";
 import { DashboardCard } from "./DashboardCard";
-
-const CARD_SIGNAL_CLASS = "dashboard-card-command-target";
-const CARD_SIGNAL_MS = 1800;
-const cardSignalTimers = new WeakMap<HTMLElement, number[]>();
 
 type TypeToSearchKeyEvent = Pick<KeyboardEvent, "altKey" | "ctrlKey" | "defaultPrevented" | "isComposing" | "key" | "metaKey">;
 
@@ -48,49 +44,20 @@ function hasBlockingDashboardSurface(): boolean {
   return Boolean(document.querySelector(".dashboard-settings-panel"));
 }
 
-export function dashboardCardDomId(id: string): string {
-  return `dashboard-card-${id}`;
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function scrollToDashboardCard(cardId: string) {
-  const target = document.getElementById(dashboardCardDomId(cardId));
-  if (!target) return;
-  const reducedMotion = prefersReducedMotion();
-  for (const timer of cardSignalTimers.get(target) ?? []) window.clearTimeout(timer);
-  target.scrollIntoView({
-    block: "center",
-    behavior: reducedMotion ? "auto" : "smooth",
-  });
-
-  // Start the cue after the smooth scroll has mostly settled around the card.
-  const startTimer = window.setTimeout(
-    () => {
-      target.classList.remove(CARD_SIGNAL_CLASS);
-      // Force a fresh animation when the same card is selected repeatedly.
-      void target.offsetWidth;
-      target.classList.add(CARD_SIGNAL_CLASS);
-      const removeTimer = window.setTimeout(() => {
-        target.classList.remove(CARD_SIGNAL_CLASS);
-        cardSignalTimers.delete(target);
-      }, CARD_SIGNAL_MS);
-      cardSignalTimers.set(target, [removeTimer]);
-    },
-    reducedMotion ? 0 : 300
-  );
-  cardSignalTimers.set(target, [startTimer]);
-}
-
-type CommandResult =
+export type CommandResult =
   | {
       kind: "card";
       value: string;
       title: string;
-      detail: "card";
+      detail: string;
       card: ResolvedCard;
+    }
+  | {
+      kind: "tab";
+      value: string;
+      title: string;
+      detail: "tab";
+      tab: DashboardTab;
     }
   | {
       kind: "theme";
@@ -100,8 +67,58 @@ type CommandResult =
       theme: ThemeId;
     };
 
-export function commandSelectionAction(kind: CommandResult["kind"], resultCount: number): "apply-theme" | "confirm-card" | "select-card" {
+export function createCommandResults({
+  cards,
+  tabs,
+  themes,
+  query,
+}: {
+  cards: readonly ResolvedCard[];
+  tabs: readonly DashboardTab[];
+  themes: readonly ThemeId[];
+  query: string;
+}): CommandResult[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  const matches = (value: string) => value.toLowerCase().includes(normalizedQuery);
+  const tabLabelById = new Map(tabs.map((tab) => [tab.id, tab.label]));
+
+  return [
+    ...cards
+      .filter((card) =>
+        matches(
+          [card.instance.title, card.instance.id, card.instance.type, ...card.instance.keywords, ...card.definition?.keywords ?? []].join(" ")
+        )
+      )
+      .map((card) => ({
+        kind: "card" as const,
+        value: `card-${card.instance.id}`,
+        title: card.instance.title,
+        detail: card.instance.tab ? (tabLabelById.get(card.instance.tab) ?? "card") : "card",
+        card,
+      })),
+    ...tabs.filter((tab) => matches(`${tab.label} ${tab.id}`)).map((tab) => ({
+      kind: "tab" as const,
+      value: `tab-${tab.id}`,
+      title: tab.label,
+      detail: "tab" as const,
+      tab,
+    })),
+    ...themes.filter((theme) => matches(themeSearchText(theme))).map((theme) => ({
+      kind: "theme" as const,
+      value: `theme-${theme}`,
+      title: themeLabel(theme),
+      detail: "theme" as const,
+      theme,
+    })),
+  ];
+}
+
+export function commandSelectionAction(
+  kind: CommandResult["kind"],
+  resultCount: number
+): "apply-theme" | "confirm-card" | "select-card" | "select-tab" {
   if (kind === "theme") return "apply-theme";
+  if (kind === "tab") return "select-tab";
   return resultCount === 1 ? "select-card" : "confirm-card";
 }
 
@@ -126,11 +143,15 @@ export function CommandSearch({
   now,
   open,
   onOpenChange,
+  onNavigateToCard,
+  onNavigateToTab,
 }: {
   resp: DashboardResponse | null;
   now: number;
   open: boolean;
   onOpenChange: Dispatch<SetStateAction<boolean>>;
+  onNavigateToCard: (cardId: string) => void;
+  onNavigateToTab: (tabId: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const [selectedValue, setSelectedValue] = useState("");
@@ -142,33 +163,9 @@ export function CommandSearch({
   const selectionQueryRef = useRef<string | null>(null);
   const enabled = Boolean(resp);
   const cards = resp?.cards ?? [];
+  const tabs = resp?.config.tabs ?? [];
   const themes = useMemo(() => resolveSelectableThemes(resp?.config.appearance), [resp?.config.appearance]);
-  const normalizedQuery = query.trim().toLowerCase();
-  const allResults = useMemo<CommandResult[]>(() => {
-    const matches = (value: string) => value.toLowerCase().includes(normalizedQuery);
-    return [
-      ...cards
-        .filter((card) =>
-          matches(
-            [card.instance.title, card.instance.id, card.instance.type, ...card.instance.keywords, ...card.definition?.keywords ?? []].join(" ")
-          )
-        )
-        .map((card) => ({
-          kind: "card" as const,
-          value: `card-${card.instance.id}`,
-          title: card.instance.title,
-          detail: "card" as const,
-          card,
-        })),
-      ...themes.filter((theme) => matches(themeSearchText(theme))).map((theme) => ({
-        kind: "theme" as const,
-        value: `theme-${theme}`,
-        title: themeLabel(theme),
-        detail: "theme" as const,
-        theme,
-      })),
-    ];
-  }, [cards, normalizedQuery, themes]);
+  const allResults = useMemo(() => createCommandResults({ cards, tabs, themes, query }), [cards, query, tabs, themes]);
   const confirmedResult = confirmedCardId
     ? (allResults.find((result) => result.kind === "card" && result.card.instance.id === confirmedCardId) ?? null)
     : null;
@@ -280,9 +277,14 @@ export function CommandSearch({
     changeOpen(false);
   }
 
-  function selectCard(id: string) {
+  function navigateToCard(id: string) {
     closeCommand();
-    window.requestAnimationFrame(() => scrollToDashboardCard(id));
+    onNavigateToCard(id);
+  }
+
+  function navigateToTab(id: string) {
+    closeCommand();
+    onNavigateToTab(id);
   }
 
   function pickTheme(theme: ThemeId) {
@@ -299,11 +301,15 @@ export function CommandSearch({
       pickTheme(result.theme);
       return;
     }
+    if (action === "select-tab" && result.kind === "tab") {
+      navigateToTab(result.tab.id);
+      return;
+    }
     if (result.kind !== "card") return;
 
     const cardId = result.card.instance.id;
     if (action === "select-card") {
-      selectCard(cardId);
+      navigateToCard(cardId);
       return;
     }
 
@@ -319,7 +325,7 @@ export function CommandSearch({
     <Command.Dialog
       open={open}
       onOpenChange={changeOpen}
-      label="Search dashboard cards and themes"
+      label="Search dashboard cards, tabs, and themes"
       shouldFilter={false}
       loop
       value={selectedResult?.value ?? ""}
@@ -338,7 +344,7 @@ export function CommandSearch({
             setQuery(nextQuery);
           }}
           autoFocus
-          placeholder="Search cards or themes"
+          placeholder="Search cards, tabs, or themes"
           className="dashboard-command-input"
         />
       </div>

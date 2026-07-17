@@ -1,10 +1,13 @@
 import { FolderOpen, Loader2, RefreshCw, RotateCcw } from "lucide-react";
 import { cn } from "../lib/cn";
+import { mergeWithinTabCardOrder } from "../lib/dashboardTabs";
+import type { DashboardTab } from "../shared/schemas";
 import { SortableCardOrderList, type SortableCardOrderItem } from "./SortableCardOrderList";
 
 export function DashboardCardOrderSettingsSection({
   cards,
   orderedCards,
+  tabs,
   canMutateConfig,
   saving,
   orderError,
@@ -16,6 +19,7 @@ export function DashboardCardOrderSettingsSection({
 }: {
   cards: SortableCardOrderItem[];
   orderedCards: SortableCardOrderItem[];
+  tabs?: readonly DashboardTab[];
   canMutateConfig: boolean;
   saving: boolean;
   orderError: string | null;
@@ -25,6 +29,8 @@ export function DashboardCardOrderSettingsSection({
   onRetry: () => void;
   onReset: () => void;
 }) {
+  const dashboardOrder = orderedCards.map((card) => card.id);
+
   return (
     <section className="mt-4 min-h-0">
       <div className="mb-2 flex items-center justify-between gap-3">
@@ -39,7 +45,38 @@ export function DashboardCardOrderSettingsSection({
         ) : null}
       </div>
 
-      {cards.length ? (
+      {tabs ? (
+        <div className="space-y-3">
+          {tabs.map((tab) => {
+            const tabCards = orderedCards.filter((card) => card.tab === tab.id);
+            const currentTabOrder = tabCards.map((card) => card.id);
+            return (
+              <div key={tab.id} className="rounded-xl border border-border bg-canvas/20 p-2.5">
+                <div className="mb-2 flex items-center justify-between gap-3 px-0.5">
+                  <h4 className="truncate type-ui-sm font-medium text-fg">{tab.label}</h4>
+                  <span className="shrink-0 font-mono type-ui-2xs text-faint">
+                    {tabCards.length} {tabCards.length === 1 ? "card" : "cards"}
+                  </span>
+                </div>
+                {tabCards.length ? (
+                  <SortableCardOrderList
+                    items={tabCards}
+                    disabled={!canMutateConfig || saving || tabCards.length < 2}
+                    onOrderChange={(nextTabOrder) => {
+                      onOrderChange(mergeWithinTabCardOrder(dashboardOrder, currentTabOrder, nextTabOrder));
+                    }}
+                    onDragStateChange={onDragStateChange}
+                  />
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border px-3 py-4 text-center type-ui-xs text-faint">
+                    No cards in this tab.
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : cards.length ? (
         <SortableCardOrderList
           items={orderedCards}
           disabled={!canMutateConfig || saving || cards.length < 2}
