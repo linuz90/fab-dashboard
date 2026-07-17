@@ -22,7 +22,7 @@ FAB_DASHBOARD_HOME="$PWD/local/demo" FAB_DASHBOARD_STATE_HOME="$PWD/local/state"
 ```
 
 5. Visually check the demo dashboard at desktop and mobile widths.
-   Switch through all themes, open command search, open settings, inspect tabs, refresh animation, stale/error labels, header widgets, and the empty dashboard.
+   Switch through all themes, open command search, open settings, inspect dashboard-level navigation tabs and card-level tab blocks, refresh animation, stale/error labels, header widgets, and the empty dashboard.
 
 ## Token Checklist
 

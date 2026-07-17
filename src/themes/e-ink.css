@@ -40,6 +40,10 @@
   --card-shadow: none;
   --app-shell-padding-top: max(0.75rem, env(safe-area-inset-top));
 
+  --dashboard-tabs-header-gap: 0.75rem;
+  --dashboard-tabs-content-gap: 1rem;
+  --dashboard-tab-shadow: none;
+
   --focus-ring-color: var(--color-fg);
   --focus-ring-halo: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
 
@@ -119,6 +123,50 @@
 
 :root[data-theme="e-ink"] .app-shell > main {
   margin-top: 1rem;
+}
+
+/* Dashboard views read like sections printed on the same sheet: one dotted
+   rule, no capsule, with the current section marked by a solid ink stroke. */
+:root[data-theme="e-ink"] .dashboard-tabs {
+  width: fit-content;
+  gap: 1rem;
+  border: 0;
+  border-bottom: 1px dotted var(--card-border-color, var(--color-border));
+  border-radius: 0;
+  padding: 0.25rem 0 0;
+  background: transparent;
+}
+
+:root[data-theme="e-ink"] .dashboard-tab-link {
+  min-height: 2rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.3rem 0.125rem 0.4rem;
+  color: var(--color-faint);
+}
+
+:root[data-theme="e-ink"] .dashboard-tab-link[aria-current="page"] {
+  border: 0;
+  border-bottom: 2px solid var(--color-fg);
+  background: transparent;
+  color: var(--color-fg);
+  box-shadow: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-tab-link:focus-visible {
+  /* The active underline intentionally meets the strip's bottom rule. Keep
+     keyboard focus inset so overflow scrolling cannot clip or shift it. */
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :root[data-theme="e-ink"] .dashboard-tab-link {
+    /* Theme chrome stays compact on desktop, but touch input still needs the
+       shared 40px target that the unlayered e-ink override would otherwise win. */
+    min-height: 2.5rem;
+  }
 }
 
 /* E-ink ordered dither: a tiny Bayer-ish pixel matrix fixed over the whole

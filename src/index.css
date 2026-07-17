@@ -103,6 +103,12 @@
   --app-titlebar-offset: 0px;
   --app-shell-padding-top: max(2rem, env(safe-area-inset-top));
   --app-shell-padding-bottom: max(2rem, env(safe-area-inset-bottom));
+
+  /* Dashboard navigation has control-scale rhythm and elevation of its own.
+     Themes can tune these without borrowing card-sized gaps or shadows. */
+  --dashboard-tabs-header-gap: 1.5rem;
+  --dashboard-tabs-content-gap: 1rem;
+  --dashboard-tab-shadow: 0 1px 2px color-mix(in srgb, var(--color-fg) 7%, transparent);
 }
 
 html {
@@ -345,6 +351,90 @@ body {
     animation: dashboard-settings-panel-in 110ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
+  .dashboard-tabs {
+    box-sizing: border-box;
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.125rem;
+    margin-top: var(--dashboard-tabs-header-gap);
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    border: 0.5px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.25rem;
+    background: color-mix(in srgb, var(--color-fg) 3%, transparent);
+    scroll-padding-inline: 0.25rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-tab-link {
+    display: inline-flex;
+    min-height: 1.875rem;
+    max-width: min(16rem, 100%);
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: var(--card-border-width) solid transparent;
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    scroll-snap-align: start;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--type-ui-xs);
+    line-height: var(--type-ui-xs-line);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .dashboard-tab-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-tab-link:hover {
+    color: var(--color-fg);
+  }
+
+  .dashboard-tab-link[aria-current="page"] {
+    border-color: var(--card-border-color, var(--color-border));
+    background: var(--color-card);
+    color: var(--color-fg);
+    box-shadow: var(--dashboard-tab-shadow);
+  }
+
+  .dashboard-tab-link:focus-visible {
+    /* The navigation is a horizontal scroll container. A tighter control
+       outline keeps the shared focus treatment visible without clipping it. */
+    outline-offset: 1px;
+    box-shadow: 0 0 0 2px var(--focus-ring-halo);
+  }
+
+  .dashboard-content {
+    margin-top: var(--dashboard-tabs-content-gap);
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .dashboard-tab-link {
+      min-height: 2.5rem;
+      padding-inline: 0.9rem;
+    }
+  }
+
   .dashboard-settings-backdrop[data-state="closed"] .dashboard-settings-panel {
     animation: dashboard-settings-panel-out 90ms cubic-bezier(0.7, 0, 0.84, 0) both;
   }
@@ -510,7 +600,11 @@ body {
   }
 
   .dashboard-command-item-detail {
+    max-width: min(12rem, 42vw);
     flex: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-family: var(--font-mono);
     font-size: var(--type-ui-2xs);
     line-height: var(--type-ui-2xs-line);

@@ -55,8 +55,9 @@ Keep user-specific dashboards in `$FAB_DASHBOARD_HOME`, not in tracked files. Do
 
 ## Card Workflows
 
-- Use `.agents/skills/create-card` when creating or modifying cards, helping with an empty dashboard, or recreating a shared card pack. It owns data-source discovery, privacy boundaries, config placement, connector design, and validation. Read [docs/bootstrap.md](docs/bootstrap.md) and [docs/config.md](docs/config.md) when that skill directs you to them.
+- Use `.agents/skills/create-card` when creating or modifying cards, helping with an empty dashboard, organizing existing cards into dashboard-level tabs, or recreating a shared card pack. It owns data-source discovery, privacy boundaries, config placement, connector design, dashboard organization, and validation. Read [docs/bootstrap.md](docs/bootstrap.md) and [docs/config.md](docs/config.md) when that skill directs you to them.
 - Use `.agents/skills/share-card` when sharing one or more cards. It owns sanitization, the portable card-pack structure, and approval before clipboard, file, gist, or other delivery.
+- When the active dashboard declares top-level tabs, every card instance must name one declared tab. Assign a valid destination when creating or installing a card; shared card packs must not bake in the sender's dashboard-specific tab placement.
 - Use **card** in implementation and docs. Treat "tile" and "widget" as user-facing aliases.
 
 Keep `AGENTS.md` at this routing level. Detailed card procedures belong in the skills and their referenced docs.
@@ -80,6 +81,17 @@ Themes are tracked engine features, not private dashboard data. When a user asks
 
 Keep `basic` as the public default/base theme; legacy stored `claude` values normalize to `basic`. Prefer token-only themes, do not load arbitrary CSS from `$FAB_DASHBOARD_HOME`, preserve `dashboard.appearance.themes` as the exact enabled theme list/order, and use generic runtime attributes such as `data-time-phase` or `data-local-hour` instead of card-specific or connector-specific theme styling.
 
+## Dashboard Tab Workflow
+
+Dashboard-level tabs are an optional engine feature under top-level `tabs` in `dashboard.json`; dashboards without them must remain unchanged, and the public demo stays flat. Do not confuse them with the `tabs` block primitive inside a card definition.
+
+- When a user asks for multiple views or unrelated card groups begin competing, suggest the fewest stable tabs that fit. Keep small first dashboards flat unless the user already has clear contexts.
+- A tabbed config assigns every card instance to exactly one declared tab. Missing or unknown membership is invalid and must use the normal last-known-good config path instead of silently hiding cards.
+- The first configured tab is the default at the root URL; non-default tabs use `?tab=<id>`. Keep unrelated query parameters intact.
+- Tabs are a client-side organization layer. Server responses, connector resolution, refresh, settings, and command search remain global across all cards; inactive-tab connectors still resolve eagerly.
+- Adding a card to a tabbed dashboard requires a valid destination tab. Moving membership or changing tab order remains an explicit config/agent edit.
+- Keep shared card packs portable by omitting or generalizing the sender's tab placement, then assigning a valid destination during installation.
+
 ## Layout Workflow
 
 Dashboard layout preferences are tracked engine features under `dashboard.appearance.layout`, not arbitrary user CSS. When changing layout width or masonry column behavior, inspect `src/shared/layout.ts`, `src/components/Masonry.tsx`, `src/App.tsx`, `src/components/DashboardSettings*.tsx`, `src/server/configActions.ts`, `src/server/actionRoute.ts`, and `docs/config.md` together.
@@ -98,6 +110,6 @@ Dashboard layout preferences are tracked engine features under `dashboard.appear
 - Keep visual primitives token-driven through `src/index.css`; avoid hardcoded colors in React components.
 - Preserve the existing dashboard visual language: small dense type, tokenized card chrome, height-balanced masonry, theme selector, command lens, and visible freshness/stale/error states.
 - Keep command-lens card selection two-stage when multiple results remain: first confirm the selected card and show its exact inert preview; selecting the sole card closes, scrolls, and visibly identifies the dashboard card. Preview rendering must stay side-effect-free through `CardInteractionModeProvider mode="preview"`.
-- Prefer generic block primitives over bespoke card components. Current composable primitives include `text`, `metric`, `rows`, `list`, `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`; add a primitive only when it can serve multiple cards or connectors.
+- Prefer generic block primitives over bespoke card components. Current composable primitives include `text`, `metric`, `rows`, `list`, card-level `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`; add a primitive only when it can serve multiple cards or connectors.
 - Use valid Lucide slugs for card, block, and header-widget icons. Unknown icon names intentionally fail schema validation.
 - Validate local config homes with explicit homes, for example `FAB_DASHBOARD_HOME="$PWD/local/demo" FAB_DASHBOARD_STATE_HOME="$PWD/local/state" bun run cli validate`. Use bare `bun run cli validate` only when you intend to validate the user's default `~/.config/fab-dashboard`.

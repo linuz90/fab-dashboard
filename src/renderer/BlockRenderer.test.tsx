@@ -218,7 +218,7 @@ describe("Blocks", () => {
     expect(html).not.toContain("Sensitive balances");
   });
 
-  test("persisted dashboard tabs keep restoring a valid stored selection", () => {
+  test("persisted card tabs keep restoring a valid stored selection", () => {
     const storage = installStorage({ "dashboard:tab:test:finances": "money" });
     const html = renderBlocks([tabsBlock()], {});
 

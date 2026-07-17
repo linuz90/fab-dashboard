@@ -37,6 +37,9 @@
   --card-gap: 1rem;
   --layout-gap: 1.25rem;
 
+  --dashboard-tabs-content-gap: 1.25rem;
+  --dashboard-tab-shadow: 0 1px 3px color-mix(in srgb, var(--color-fg) 14%, transparent);
+
   /* Apple wouldn't use a terminal font: values render in SF too, with
      tabular figures (below) standing in for mono column alignment. */
   --font-mono: var(--font-sans);
@@ -46,6 +49,27 @@
    columns aligned with tabular figures instead. */
 :root[data-theme="apple"] .font-mono {
   font-variant-numeric: tabular-nums;
+}
+
+/* Dashboard views use the compact macOS segmented-control language. They are
+   navigation, not cards, so the active segment gets only control-scale lift. */
+:root[data-theme="apple"] .dashboard-tabs {
+  border: 0;
+  border-radius: 0.8rem;
+  padding: 0.2rem;
+  background: color-mix(in srgb, var(--color-fg) 7%, transparent);
+}
+
+:root[data-theme="apple"] .dashboard-tab-link {
+  border: 0;
+  border-radius: 0.62rem;
+  padding-inline: 0.8rem;
+  font-weight: 500;
+}
+
+:root[data-theme="apple"] .dashboard-tab-link[aria-current="page"] {
+  border: 0;
+  background: var(--color-card);
 }
 
 :root[data-theme="apple"] .tab-pills {

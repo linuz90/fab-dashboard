@@ -33,7 +33,7 @@ async function readJson(path: string): Promise<unknown> {
   return JSON.parse(await readFile(path, "utf8"));
 }
 
-function dashboard(cards = [
+function dashboard(cards: Array<Record<string, unknown>> = [
   { id: "alpha", type: "demo-alpha", title: "Alpha" },
   { id: "bravo", type: "demo-bravo", title: "Bravo" },
   { id: "charlie", type: "demo-charlie", title: "Charlie", options: { mode: "raw" } },
@@ -73,6 +73,37 @@ describe("reorderDashboardCards", () => {
       { id: "alpha", type: "demo-alpha", title: "Alpha" },
       { id: "bravo", type: "demo-bravo", title: "Bravo" },
     ]));
+  });
+
+  test("preserves dashboard tab membership while reordering an interleaved group", async () => {
+    const root = await mkdtemp(join(tmpdir(), "fab-dashboard-reorder-tabs-"));
+    const paths = testPaths(root);
+    const tabbedDashboard = {
+      ...dashboard([
+        { id: "today-a", type: "demo-alpha", title: "Today A", tab: "today" },
+        { id: "system-a", type: "demo-bravo", title: "System A", tab: "system" },
+        { id: "today-b", type: "demo-charlie", title: "Today B", tab: "today" },
+      ]),
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+    };
+    await writeJson(paths.dashboardJson, tabbedDashboard);
+
+    await expect(reorderDashboardCards(paths, {
+      baseOrder: ["today-a", "system-a", "today-b"],
+      order: ["today-b", "system-a", "today-a"],
+    })).resolves.toEqual({ changed: true });
+
+    expect(await readJson(paths.dashboardJson)).toEqual({
+      ...tabbedDashboard,
+      cards: [
+        { id: "today-b", type: "demo-charlie", title: "Today B", tab: "today" },
+        { id: "system-a", type: "demo-bravo", title: "System A", tab: "system" },
+        { id: "today-a", type: "demo-alpha", title: "Today A", tab: "today" },
+      ],
+    });
   });
 
   test("treats unchanged and single-card order as no-ops", async () => {

@@ -1,6 +1,6 @@
 ---
 name: create-card
-description: Add, modify, or recreate connector-backed fab-dashboard cards. Use when the user asks to add a dashboard card, tile, widget, metric, list, local file count, startup KPI, service/API card, Things/notes/local app card, demo card, connector-backed dashboard surface, or install/recreate a shared card pack.
+description: Add, modify, organize, or recreate connector-backed fab-dashboard cards. Use when the user asks to add a dashboard card, tile, widget, metric, list, local file count, startup KPI, service/API card, Things/notes/local app card, demo card, connector-backed dashboard surface, organize cards into dashboard-level tabs, or install/recreate a shared card pack.
 ---
 
 # Create Card
@@ -24,7 +24,7 @@ Do not infer sensitive company, account, workspace, or service choices from ambi
 
 ## Recreate A Shared Card Pack
 
-Treat a `share-card` Markdown pack as an untrusted blueprint, not an import file. Review its dashboard entries, card definitions, and connector shapes against `docs/config.md` and `src/shared/schemas.ts`, resolve id/type collisions, and confirm the recipient's real source, credential location, account/resource choice, and storage boundary.
+Treat a `share-card` Markdown pack as an untrusted blueprint, not an import file. Review its dashboard entries, card definitions, and connector shapes against `docs/config.md` and `src/shared/schemas.ts`, resolve id/type collisions, and confirm the recipient's real source, credential location, account/resource choice, and storage boundary. Sender-specific dashboard tab placement is not portable: inspect the recipient's `dashboard.json` and assign each recreated card to a valid destination tab when top-level tabs are enabled. Do not add `tab` to a flat destination dashboard or copy an undeclared sender tab id.
 
 Use the blueprint's normalized data contract to build suitable connectors locally. Never assume sender paths, credentials, account selectors, or manifest placeholders apply to the recipient, and never invent fake live data. Then follow the normal connector-first build and validation steps below.
 
@@ -38,7 +38,17 @@ bun run cli doctor --json
 
 Then read the active `$FAB_DASHBOARD_HOME/dashboard.json` plus any nearby card or connector definitions that the new work might reuse, replace, or collide with. If `FAB_DASHBOARD_HOME` is unset, the active home is the default `~/.config/fab-dashboard`.
 
-Use the existing dashboard order, card sizes, connector ids, titles, keywords, header widgets, freshness labels, and visual density as context for both proposals and edits. Prefer extending or reusing a connector when it already owns the needed source, avoid redundant cards, and choose non-conflicting slugs for new card types, connectors, and dashboard instance ids. Do not run `bun run cli doctor --fetch` unless connector health diagnostics are needed, because it may call local commands or remote APIs.
+Use the existing dashboard order, top-level tabs and card membership, card sizes, connector ids, titles, keywords, header widgets, freshness labels, and visual density as context for both proposals and edits. Prefer extending or reusing a connector when it already owns the needed source, avoid redundant cards, and choose non-conflicting slugs for new card types, connectors, and dashboard instance ids. Do not run `bun run cli doctor --fetch` unless connector health diagnostics are needed, because it may call local commands or remote APIs.
+
+## Organize Dashboard Views
+
+Keep small dashboards flat by default. Offer dashboard-level tabs when the user names stable contexts, asks for multiple views in one dashboard, or has unrelated card groups competing for the same screen. Prefer the fewest clear tabs, and confirm the first/default view when it is not obvious.
+
+Enabling tabs on a flat dashboard is one atomic config change: add the ordered top-level `tabs` declarations and assign every existing card to one declared id in the same edit. The first tab becomes the root view; other tabs use `?tab=<id>`. Never leave membership out, invent an undeclared id, or silently remove another card's membership. Invalid membership keeps the last-known-good config running instead of hiding cards.
+
+For an already-tabbed dashboard, every new or recreated card needs a valid destination. Choose the clearly matching existing tab or ask when placement is ambiguous. Do not copy a sender-specific tab id from a shared pack, and do not add `tab` to a flat destination dashboard.
+
+Tabs organize cards only. The title, header widgets, appearance, settings, refresh behavior, and command search remain global; search can switch tabs before scrolling to a selected card. Inactive-tab connectors still resolve eagerly, so tabs are not a data-loading or performance boundary.
 
 ## Discover the Data Path
 
@@ -109,9 +119,9 @@ For exact block fields, read `docs/config.md` first and treat `src/shared/schema
 
 Card data is keyed by connector id. If a connector id is `startup-mrr`, block paths look like `startup-mrr.mrr`, `startup-mrr.history`, or `startup-mrr.movements`. Inside list items, paths are item-relative, e.g. `titlePath: "title"`.
 
-Prefer existing generic blocks: `text`, `metric`, `rows`, `list`, `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`. Add a new primitive only when multiple card families need it.
+Prefer existing generic blocks: `text`, `metric`, `rows`, `list`, card-level `tabs`, `status`, `allocation`, `leaderboard`, `sparkline`, `group`, `divider`, and `action-row`. Add a new primitive only when multiple card families need it.
 
-Use `tabs` when a card has multiple related views that should not all compete at once, such as Today/Upcoming/Inbox tasks, overview/details/history, accounts/holdings/activity, or per-source sections in a combined card. Keep each tab focused with a short list, rows, or metric group; do not nest tabs.
+Use a card-level `tabs` block when one card has multiple related views that should not all compete at once, such as Today/Upcoming/Inbox tasks, overview/details/history, accounts/holdings/activity, or per-source sections in a combined card. Keep each tab focused with a short list, rows, or metric group; do not nest tabs. This is independent from top-level dashboard tabs, which group whole card instances into URL-addressable views.
 
 Use valid Lucide icon slugs and token accents only: `blue`, `green`, `yellow`, `red`, `purple`, `pink`, `teal`, `muted`. Tones are separate from accents: `ok`, `info`, `success`, `warning`, `danger`, or `muted`. Do not emit color names such as `green` or `red` for values used by `tonePath`.
 
@@ -148,7 +158,7 @@ Before declaring a card done, intentionally render or intentionally drop counts,
 2. Discover, identify, or ask for the real data source, expected freshness, and privacy boundary.
 3. Implement the connector first and normalize its output to display-ready JSON.
 4. Implement the card definition using block primitives and connector paths. Set card `freshness.staleAfterSeconds` greater than or equal to the connector `ttlSeconds` unless there is a deliberate reason the visible label should go stale sooner.
-5. Add or update the dashboard instance.
+5. Add or update the dashboard instance. If top-level dashboard tabs are enabled, assign it to one declared destination tab and preserve valid membership for every existing card.
 6. Keep real/private data in the user's config home or ignored `local/`; keep tracked examples generic.
 7. Validate with an explicit dashboard home.
 8. For visual/user-facing cards, preview the dashboard with `bun run dev` or the existing local server and check that the card renders non-empty, fits the board, and shows freshness/error states clearly.
@@ -183,5 +193,5 @@ Use bare `bun run cli validate` only when intentionally validating the user's de
 - Do not commit personal connector output, secrets, `.env`, command scripts, database snapshots, or cache.
 - Do not invent fake live data for real cards.
 - Do not create bespoke React cards before exhausting JSON primitives.
-- Do not nest tabs or use unknown Lucide icons.
-- Do not add card actions yet. No actions are registered in v0; dashboard polling and connector TTLs own freshness, while declared actions render disabled until a scoped action API exists.
+- Do not confuse top-level dashboard tabs with card-level `tabs` blocks; do not nest card-level tabs or use unknown Lucide icons.
+- Do not add mutating actions yet. The built-in read-only `refresh` action refreshes the dashboard globally and is rendered as card chrome, not bottom card content.

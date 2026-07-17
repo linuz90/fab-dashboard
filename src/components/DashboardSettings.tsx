@@ -25,6 +25,7 @@ function cardsToOrderItems(resp: DashboardResponse | null): SortableCardOrderIte
     title: card.instance.title,
     type: card.instance.type,
     size: card.instance.size,
+    tab: card.instance.tab,
   }));
 }
 
@@ -297,6 +298,7 @@ export function DashboardSettings({ resp }: { resp: DashboardResponse | null }) 
               <DashboardCardOrderSettingsSection
                 cards={cards}
                 orderedCards={orderedCards}
+                tabs={resp?.config.tabs}
                 canMutateConfig={canMutateConfig}
                 saving={orderSaving}
                 orderError={orderError}

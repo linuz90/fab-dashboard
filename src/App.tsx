@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import { AnimatedCardFrame } from "./components/AnimatedCardFrame";
 import { CardInteractionModeProvider } from "./components/CardInteractionMode";
 import { CardShell, ErrorCard } from "./components/CardShell";
-import { CommandSearch, dashboardCardDomId } from "./components/CommandSearch";
+import { CommandSearch } from "./components/CommandSearch";
 import { DashboardCard } from "./components/DashboardCard";
 import { DashboardSettings } from "./components/DashboardSettings";
+import { DashboardTabs } from "./components/DashboardTabs";
 import { HeaderWidgets } from "./components/HeaderWidgets";
 import { Masonry, type MasonryItem } from "./components/Masonry";
+import { dashboardCardDomId, scrollToDashboardCard } from "./lib/dashboardCardNavigation";
+import { dashboardTabUrl, resolveDashboardTabUrl } from "./lib/dashboardTabs";
 import { syncThemeWithAppearance } from "./lib/theme";
 import { agoLabel, friendlyDateTime } from "./lib/time";
 import { useMobileCommandPull } from "./lib/useMobileCommandPull";
@@ -30,13 +33,43 @@ function EmptyDashboard() {
   );
 }
 
+function EmptyDashboardTab({ label }: { label: string }) {
+  return (
+    <div className="mx-auto max-w-lg pt-10 text-center">
+      <CardShell title={`No cards in ${label}`}>
+        <p className="type-ui-sm leading-relaxed text-muted">
+          This dashboard view is ready for cards assigned to <span className="font-mono text-fg">{label}</span>.
+        </p>
+      </CardShell>
+    </div>
+  );
+}
+
+function relativeDashboardUrl(url: URL): string {
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export function App() {
   const { resp, fetchError, fetchedAt, showRefreshMotion } = useDashboard();
   const now = useNow();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [cardsHaveEntered, setCardsHaveEntered] = useState(false);
   const [commandSearchOpen, setCommandSearchOpen] = useState(false);
+  const [navigationVersion, setNavigationVersion] = useState(0);
+  const [pendingCardId, setPendingCardId] = useState<string | null>(null);
   const cardsEntering = Boolean(resp && !cardsHaveEntered);
+  const tabs = resp?.config.tabs;
+  const activeTabId = useMemo(
+    () => resp ? resolveDashboardTabUrl(window.location.href, tabs).activeTabId : null,
+    [navigationVersion, resp, tabs]
+  );
+  const activeTab = tabs?.find((tab) => tab.id === activeTabId) ?? null;
+  const visibleCards = useMemo(
+    () => tabs
+      ? (resp?.cards ?? []).filter((card) => card.instance.tab === activeTabId)
+      : (resp?.cards ?? []),
+    [activeTabId, resp?.cards, tabs]
+  );
   const headerWidgets = resp?.header?.widgets ?? [];
   const layout = resolveDashboardLayout(resp?.config.appearance.layout);
   const appearanceDefaultTheme = resp?.config.appearance.defaultTheme ?? null;
@@ -56,6 +89,61 @@ export function App() {
   useEffect(() => {
     if (resp) syncThemeWithAppearance(resp.config.appearance);
   }, [Boolean(resp), appearanceDefaultTheme, appearanceThemesKey]);
+
+  useEffect(() => {
+    if (!resp) return;
+    const selection = resolveDashboardTabUrl(window.location.href, tabs);
+    if (!selection.shouldReplace) return;
+    window.history.replaceState(window.history.state, "", relativeDashboardUrl(selection.canonicalUrl));
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [navigationVersion, resp, tabs]);
+
+  useEffect(() => {
+    function onPopState() {
+      setPendingCardId(null);
+      setNavigationVersion((current) => current + 1);
+      scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingCardId) return;
+    if (scrollToDashboardCard(pendingCardId)) setPendingCardId(null);
+  }, [activeTabId, pendingCardId, visibleCards]);
+
+  const hrefForTab = useCallback((tabId: string) => {
+    return relativeDashboardUrl(dashboardTabUrl(window.location.href, tabs, tabId));
+  }, [tabs]);
+
+  const navigateToTab = useCallback((tabId: string) => {
+    if (!tabs?.some((tab) => tab.id === tabId)) return;
+    setPendingCardId(null);
+    const nextUrl = dashboardTabUrl(window.location.href, tabs, tabId);
+    if (nextUrl.href !== window.location.href) {
+      window.history.pushState(window.history.state, "", relativeDashboardUrl(nextUrl));
+      setNavigationVersion((current) => current + 1);
+    }
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [tabs]);
+
+  const navigateToCard = useCallback((cardId: string) => {
+    const card = resp?.cards.find((candidate) => candidate.instance.id === cardId);
+    if (!card) return;
+
+    const ownerTabId = card.instance.tab;
+    if (tabs && ownerTabId) {
+      const nextUrl = dashboardTabUrl(window.location.href, tabs, ownerTabId);
+      if (nextUrl.href !== window.location.href) {
+        window.history.pushState(window.history.state, "", relativeDashboardUrl(nextUrl));
+        setNavigationVersion((current) => current + 1);
+      }
+    }
+    // The effect above runs after React commits the owning tab's masonry, so
+    // cross-tab search never races a DOM node that has not mounted yet.
+    setPendingCardId(cardId);
+  }, [resp?.cards, tabs]);
 
   useMobileCommandPull({
     enabled: Boolean(resp),
@@ -90,37 +178,57 @@ export function App() {
             </div>
           </header>
 
-          <main className="mt-6">
+          {tabs && activeTabId && (
+            <DashboardTabs
+              tabs={tabs}
+              activeTabId={activeTabId}
+              hrefForTab={hrefForTab}
+              onNavigate={navigateToTab}
+            />
+          )}
+
+          <main className={tabs ? "dashboard-content" : "mt-6"}>
             {!resp ? null : resp.configError && resp.cards.length === 0 ? (
               <ErrorCard title="dashboard.json" message={resp.configError} />
             ) : resp.cards.length === 0 ? (
-              <EmptyDashboard />
+              tabs && activeTab ? <EmptyDashboardTab label={activeTab.label} /> : <EmptyDashboard />
             ) : (
               <>
                 {resp.configError && <div className="mb-[var(--layout-gap)]"><ErrorCard title="Config warning" message={resp.configError} /></div>}
-                <Masonry
-                  maxColumns={layout.maxColumns}
-                  items={resp.cards.map((card, index): MasonryItem => {
-                    const enterDelayMs = Math.min(index * 28, 220);
-                    return {
-                      key: card.instance.id,
-                      full: card.instance.size === "full",
-                      node: (
-                        <div id={dashboardCardDomId(card.instance.id)} data-dashboard-card-id={card.instance.id}>
-                          <AnimatedCardFrame enter={cardsEntering} refreshActive={showRefreshMotion} enterDelayMs={enterDelayMs}>
-                            <DashboardCard card={card} now={now} />
-                          </AnimatedCardFrame>
-                        </div>
-                      ),
-                    };
-                  })}
-                />
+                {visibleCards.length === 0 && activeTab ? (
+                  <EmptyDashboardTab label={activeTab.label} />
+                ) : (
+                  <Masonry
+                    maxColumns={layout.maxColumns}
+                    items={visibleCards.map((card, index): MasonryItem => {
+                      const enterDelayMs = Math.min(index * 28, 220);
+                      return {
+                        key: card.instance.id,
+                        full: card.instance.size === "full",
+                        node: (
+                          <div id={dashboardCardDomId(card.instance.id)} data-dashboard-card-id={card.instance.id}>
+                            <AnimatedCardFrame enter={cardsEntering} refreshActive={showRefreshMotion} enterDelayMs={enterDelayMs}>
+                              <DashboardCard card={card} now={now} />
+                            </AnimatedCardFrame>
+                          </div>
+                        ),
+                      };
+                    })}
+                  />
+                )}
               </>
             )}
           </main>
 
           {footerText && <footer className="mt-10 text-center font-mono type-ui-xs text-header-faint">{footerText}</footer>}
-          <CommandSearch resp={resp} now={now} open={commandSearchOpen} onOpenChange={setCommandSearchOpen} />
+          <CommandSearch
+            resp={resp}
+            now={now}
+            open={commandSearchOpen}
+            onOpenChange={setCommandSearchOpen}
+            onNavigateToCard={navigateToCard}
+            onNavigateToTab={navigateToTab}
+          />
         </div>
       </div>
     </CardInteractionModeProvider>

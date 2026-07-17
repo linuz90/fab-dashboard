@@ -41,8 +41,48 @@
   --card-shadow: 0 2px 6px light-dark(rgb(59 44 20 / 0.1), rgb(0 0 0 / 0.5));
   --card-gap: 0.875rem;
   --layout-gap: 1rem;
+
+  --dashboard-tabs-header-gap: 1.25rem;
+  --dashboard-tabs-content-gap: 1rem;
+  --dashboard-tab-shadow: none;
 }
 
 :root[data-theme="kingdom"] .font-mono {
   font-variant-numeric: tabular-nums;
+}
+
+/* Dashboard views are chapter markers on the parchment rather than modern
+   controls. The gold rule carries selection without adding another box. */
+:root[data-theme="kingdom"] .dashboard-tabs {
+  gap: 1.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--card-border-color, var(--color-border));
+  border-radius: 0;
+  padding: 0.25rem 0.25rem 0;
+  background: transparent;
+}
+
+:root[data-theme="kingdom"] .dashboard-tab-link {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.3rem 0.125rem 0.45rem;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  letter-spacing: 0.025em;
+}
+
+:root[data-theme="kingdom"] .dashboard-tab-link[aria-current="page"] {
+  border: 0;
+  border-bottom: 2px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-fg);
+  box-shadow: none;
+}
+
+:root[data-theme="kingdom"] .dashboard-tab-link:focus-visible {
+  /* This flat chapter strip shares its baseline with the active underline, so
+     the focus outline stays inside the link instead of clipping on overflow. */
+  outline-offset: -2px;
+  box-shadow: none;
 }

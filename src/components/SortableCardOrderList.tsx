@@ -24,6 +24,7 @@ export interface SortableCardOrderItem {
   title: string;
   type: string;
   size: "half" | "full";
+  tab?: string;
 }
 
 interface SortableCardOrderListProps {
