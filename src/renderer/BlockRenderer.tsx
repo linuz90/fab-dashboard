@@ -695,39 +695,25 @@ function SparklineBlock({ block, data }: { block: Extract<Block, { type: "sparkl
   );
 }
 
-function ActionRowBlock({
-  block,
-  onRefresh,
-}: {
-  block: Extract<Block, { type: "action-row" }>;
-  onRefresh: () => void;
-}) {
-  const actions = block.actions.filter((action) => action.id !== "refresh");
-  if (actions.length === 0) return null;
-
+function ActionRowBlock({ block }: { block: Extract<Block, { type: "action-row" }> }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {actions.map((action) => {
-        const handler = action.id === "refresh" ? onRefresh : null;
-        const enabled = !action.disabled && action.capability === "readOnly" && handler !== null;
-        return (
-          <button
-            key={action.id}
-            type="button"
-            title={action.display === "icon" ? action.label : undefined}
-            aria-label={action.display === "icon" ? action.label : undefined}
-            disabled={!enabled}
-            onClick={() => handler?.()}
-            className={cn(
-              "inline-flex items-center justify-center gap-1.5 rounded-full border border-border font-mono type-ui-xs text-muted transition-colors enabled:cursor-pointer enabled:hover:text-fg disabled:opacity-50",
-              action.display === "icon" ? "size-7 p-0" : "px-3 py-1"
-            )}
-          >
-            {action.icon && <DashboardIcon name={action.icon} className="size-3.5" />}
-            {action.display !== "icon" && action.label}
-          </button>
-        );
-      })}
+      {block.actions.map((action) => (
+        <button
+          key={action.id}
+          type="button"
+          title={action.display === "icon" ? action.label : undefined}
+          aria-label={action.display === "icon" ? action.label : undefined}
+          disabled
+          className={cn(
+            "inline-flex items-center justify-center gap-1.5 rounded-full border border-border font-mono type-ui-xs text-muted transition-colors enabled:cursor-pointer enabled:hover:text-fg disabled:opacity-50",
+            action.display === "icon" ? "size-7 p-0" : "px-3 py-1"
+          )}
+        >
+          {action.icon && <DashboardIcon name={action.icon} className="size-3.5" />}
+          {action.display !== "icon" && action.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -736,12 +722,10 @@ function TabsBlock({
   block,
   data,
   storageKey,
-  onRefresh,
 }: {
   block: Extract<Block, { type: "tabs" }>;
   data: Record<string, unknown>;
   storageKey: string;
-  onRefresh: () => void;
 }) {
   const ids = block.tabs.map((tab) => tab.id);
   const [active, setActive] = useStoredTab(
@@ -754,12 +738,12 @@ function TabsBlock({
   return (
     <div className="space-y-3">
       <TabPills tabs={block.tabs.map(({ id, label }) => ({ id, label }))} active={selected.id} onSelect={setActive} />
-      <Blocks blocks={selected.blocks} data={data} storageKey={storageKey} onRefresh={onRefresh} />
+      <Blocks blocks={selected.blocks} data={data} storageKey={storageKey} />
     </div>
   );
 }
 
-function renderBlock(block: Block, data: Record<string, unknown>, storageKey: string, onRefresh: () => void): ReactNode {
+function renderBlock(block: Block, data: Record<string, unknown>, storageKey: string): ReactNode {
   if (!visible(block, data)) return null;
   switch (block.type) {
     case "text":
@@ -783,16 +767,15 @@ function renderBlock(block: Block, data: Record<string, unknown>, storageKey: st
       return (
         <div className="space-y-2 border-t-[0.5px] border-border pt-3">
           {block.title && <SectionLabel>{block.title}</SectionLabel>}
-          <Blocks blocks={block.blocks} data={data} storageKey={storageKey} onRefresh={onRefresh} />
+          <Blocks blocks={block.blocks} data={data} storageKey={storageKey} />
         </div>
       );
     case "tabs":
-      return <TabsBlock block={block} data={data} storageKey={storageKey} onRefresh={onRefresh} />;
+      return <TabsBlock block={block} data={data} storageKey={storageKey} />;
     case "divider":
       return <div className="border-t-[0.5px] border-border" />;
     case "action-row":
-      if (block.actions.every((action) => action.id === "refresh")) return null;
-      return <ActionRowBlock block={block} onRefresh={onRefresh} />;
+      return <ActionRowBlock block={block} />;
   }
 }
 
@@ -800,18 +783,16 @@ export function Blocks({
   blocks,
   data,
   storageKey,
-  onRefresh,
 }: {
   blocks: unknown[];
   data: Record<string, unknown>;
   storageKey: string;
-  onRefresh: () => void;
 }) {
   return (
     <>
       {blocks.map((block, index) => {
         const typed = block as Block;
-        const node = renderBlock(typed, data, storageKey, onRefresh);
+        const node = renderBlock(typed, data, storageKey);
         return node === null ? null : <div key={typed.id ?? `${typed.type}-${index}`}>{node}</div>;
       })}
     </>

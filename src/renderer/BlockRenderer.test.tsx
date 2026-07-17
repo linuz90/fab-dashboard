@@ -35,7 +35,7 @@ afterEach(() => {
 });
 
 function renderBlocks(blocks: unknown[], data: Record<string, unknown>) {
-  return renderToStaticMarkup(<Blocks blocks={blocks} data={data} storageKey="test" onRefresh={() => undefined} />);
+  return renderToStaticMarkup(<Blocks blocks={blocks} data={data} storageKey="test" />);
 }
 
 function tabsBlock({ defaultTab = "portfolio", persist = true }: { defaultTab?: string; persist?: boolean } = {}) {
@@ -165,10 +165,13 @@ describe("Blocks", () => {
     expect(html).not.toContain("line-through\">Old");
   });
 
-  test("refresh-only action rows are promoted out of content", () => {
-    expect(renderBlocks([
-      { type: "action-row", actions: [{ id: "refresh", label: "Refresh", icon: "refresh-cw", display: "icon", capability: "readOnly", disabled: false }] },
-    ], {})).toBe("");
+  test("unregistered actions render disabled instead of implying a working handler", () => {
+    const html = renderBlocks([
+      { type: "action-row", actions: [{ id: "inspect", label: "Inspect", display: "text", capability: "readOnly", disabled: false }] },
+    ], {});
+
+    expect(html).toContain("Inspect");
+    expect(html).toContain('disabled=""');
   });
 
   test("non-persisted tabs ignore storage and honor a non-first default", () => {
@@ -197,7 +200,7 @@ describe("Blocks", () => {
     transientTabSelections.remember("test:finances", "money");
     const html = renderToStaticMarkup(
       <CardInteractionModeProvider mode="preview">
-        <Blocks blocks={[tabsBlock()]} data={{}} storageKey="test" onRefresh={() => undefined} />
+        <Blocks blocks={[tabsBlock()]} data={{}} storageKey="test" />
       </CardInteractionModeProvider>,
     );
 

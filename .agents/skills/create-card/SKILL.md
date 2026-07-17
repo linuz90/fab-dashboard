@@ -184,4 +184,4 @@ Use bare `bun run cli validate` only when intentionally validating the user's de
 - Do not invent fake live data for real cards.
 - Do not create bespoke React cards before exhausting JSON primitives.
 - Do not nest tabs or use unknown Lucide icons.
-- Do not add mutating actions yet. The built-in read-only `refresh` action refreshes the dashboard globally and is rendered as card chrome, not bottom card content.
+- Do not add card actions yet. No actions are registered in v0; dashboard polling and connector TTLs own freshness, while declared actions render disabled until a scoped action API exists.

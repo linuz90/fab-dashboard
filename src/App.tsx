@@ -31,7 +31,7 @@ function EmptyDashboard() {
 }
 
 export function App() {
-  const { resp, fetchError, fetchedAt, isManualRefreshInFlight, showRefreshMotion, refresh } = useDashboard();
+  const { resp, fetchError, fetchedAt, showRefreshMotion } = useDashboard();
   const now = useNow();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [cardsHaveEntered, setCardsHaveEntered] = useState(false);
@@ -108,7 +108,7 @@ export function App() {
                       node: (
                         <div id={dashboardCardDomId(card.instance.id)} data-dashboard-card-id={card.instance.id}>
                           <AnimatedCardFrame enter={cardsEntering} refreshActive={showRefreshMotion} enterDelayMs={enterDelayMs}>
-                            <DashboardCard card={card} now={now} onRefresh={() => void refresh()} refreshing={isManualRefreshInFlight} />
+                            <DashboardCard card={card} now={now} />
                           </AnimatedCardFrame>
                         </div>
                       ),

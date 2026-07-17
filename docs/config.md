@@ -150,7 +150,7 @@ Media URLs from `imagePath` are sanitized like links but stricter: only `http:`,
 
 The condition shape is intentionally small: `path`, optional `equals`, and optional `exists`. A path-only condition follows normal truthiness, while `exists: true` keeps meaningful values such as `0`. Prefer connector-normalized booleans such as `showFocusStatus` over parsing display strings like `"0%"`.
 
-`action-row` can render compact icon buttons for future registered read-only actions. The built-in `refresh` action is promoted to card chrome and labeled `Refresh dashboard`; refresh-only action rows are not rendered as card content. Unknown action ids render disabled until a later action API exists.
+`action-row` can render compact icon buttons for future registered read-only actions. No actions are registered in v0, so declared actions render disabled until a later action API exists.
 
 The `label` remains required and is used for the button title and accessible name when an action is rendered.
 
@@ -166,7 +166,7 @@ The `label` remains required and is used for the button title and accessible nam
 
 ## Actions
 
-Action blocks carry capability metadata (`readOnly`, `mutating`, `destructive`) so cards can declare intent early. In v0 the renderer only enables registered `readOnly` actions. The built-in `refresh` action refetches the dashboard view; it does not bypass connector TTLs, run arbitrary mutating endpoints, or refresh only one card.
+Action blocks carry capability metadata (`readOnly`, `mutating`, `destructive`) so cards can declare intent early. In v0 no actions are registered. Dashboard freshness is automatic: the client polls at `dashboard.refreshSeconds`, connectors retain their own TTL and stale-while-revalidate behavior, and card freshness labels expose age/error state without misleading per-card refresh controls.
 
 Real mutating/destructive actions need a later action API with confirmations, local-only mode checks, and CSRF/origin protection.
 

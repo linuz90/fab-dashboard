@@ -12,8 +12,8 @@ interface AnimatedCardFrameProps {
 }
 
 /** Owns decorative card motion so individual cards stay focused on data UI.
- * The refresh beam is deliberately quiet: source labels and the refresh icon
- * carry the functional state, while this adds only a faint live edge. */
+ * The refresh beam is deliberately quiet: source labels carry the functional
+ * state, while this adds only a faint live edge during background updates. */
 export function AnimatedCardFrame({ children, enter, refreshActive, enterDelayMs }: AnimatedCardFrameProps) {
   const [theme] = useTheme();
   const squareFrame = themeFrameShape(theme) === "square";

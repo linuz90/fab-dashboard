@@ -5,8 +5,6 @@ import { DashboardIcon } from "../renderer/icons";
 import type { ResolvedCard, SourceFreshness } from "../shared/schemas";
 import { CardShell, ErrorCard } from "./CardShell";
 
-const NOOP_REFRESH = () => undefined;
-
 export function freshnessFor(card: ResolvedCard, now: number): { label: string; tone: "ok" | "stale" | "error" } | null {
   const freshnessEntry = card.definition?.freshness?.connector
     ? ([card.definition.freshness.connector, card.freshness[card.definition.freshness.connector]] as const)
@@ -45,13 +43,9 @@ function freshnessLabel(freshness: SourceFreshness, source: string = freshness.s
 export function DashboardCard({
   card,
   now,
-  onRefresh,
-  refreshing = false,
 }: {
   card: ResolvedCard;
   now: number;
-  onRefresh?: () => void;
-  refreshing?: boolean;
 }) {
   if (!card.definition) return <ErrorCard title={card.instance.title} message={card.error ?? "missing card definition"} />;
   const visual = card.definition.visual;
@@ -64,11 +58,9 @@ export function DashboardCard({
         accent: visual.accent,
         icon: visual.icon ? <DashboardIcon name={visual.icon} /> : undefined,
       }}
-      onRefresh={onRefresh}
-      refreshing={refreshing}
     >
       {card.error && <CardProblem message={card.error} hint={card.definition.errorHint} />}
-      <Blocks blocks={card.definition.blocks} data={card.data} storageKey={card.instance.id} onRefresh={onRefresh ?? NOOP_REFRESH} />
+      <Blocks blocks={card.definition.blocks} data={card.data} storageKey={card.instance.id} />
     </CardShell>
   );
 }
