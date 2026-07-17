@@ -645,18 +645,18 @@ body {
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .card-surface :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+    .card-surface [data-card-meta][data-tone="ok"] {
       opacity: 0;
       transition: opacity 120ms ease-out;
     }
 
-    .card-surface:is(:hover, :focus-within) :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+    .card-surface:is(:hover, :focus-within) [data-card-meta][data-tone="ok"] {
       opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card-surface :is([data-card-meta][data-tone="ok"], [data-card-refresh]) {
+    .card-surface [data-card-meta][data-tone="ok"] {
       transition: none;
     }
   }

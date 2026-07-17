@@ -1,31 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DASHBOARD_QUERY_KEY, dashboardRefetchInterval, fetchDashboard, hasRefreshingSources } from "./dashboardApi";
 
 export function useDashboard() {
   const [showRefreshMotion, setShowRefreshMotion] = useState(false);
-  const [manualRefreshInFlight, setManualRefreshInFlight] = useState(false);
   const connectorRefreshStartedAt = useRef<number | null>(null);
   const refreshMotionTimeout = useRef<number | null>(null);
-  const manualRefreshPromise = useRef<Promise<unknown> | null>(null);
-  const { data, dataUpdatedAt, error, refetch } = useQuery({
+  const { data, dataUpdatedAt, error } = useQuery({
     queryKey: DASHBOARD_QUERY_KEY,
     queryFn: fetchDashboard,
     refetchInterval: (q) => dashboardRefetchInterval(q.state.data),
     refetchOnMount: "always",
     staleTime: 0,
   });
-
-  const refresh = useCallback(async () => {
-    if (manualRefreshPromise.current) return manualRefreshPromise.current;
-    setManualRefreshInFlight(true);
-    const promise = refetch().finally(() => {
-      manualRefreshPromise.current = null;
-      setManualRefreshInFlight(false);
-    });
-    manualRefreshPromise.current = promise;
-    return promise;
-  }, [refetch]);
 
   const fetchError = error instanceof Error ? error.message : error ? String(error) : null;
   const isRefreshingSources = !fetchError && hasRefreshingSources(data);
@@ -64,9 +51,7 @@ export function useDashboard() {
     resp: data ?? null,
     fetchError,
     fetchedAt: dataUpdatedAt || null,
-    isManualRefreshInFlight: manualRefreshInFlight,
     showRefreshMotion,
-    refresh,
   };
 }
 

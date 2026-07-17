@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { ResolvedCard } from "../shared/schemas";
-import { freshnessFor } from "./DashboardCard";
+import { DashboardCard, freshnessFor } from "./DashboardCard";
 
 function cardWithFreshness(fetchedAt: string, data: Record<string, unknown> = {}): ResolvedCard {
   return {
@@ -77,5 +79,19 @@ describe("freshnessFor", () => {
       label: "source · 30s ago",
       tone: "ok",
     });
+  });
+});
+
+describe("DashboardCard", () => {
+  test("does not render a misleading per-card refresh control", () => {
+    const html = renderToStaticMarkup(
+      createElement(DashboardCard, {
+        card: cardWithFreshness("2026-07-08T09:59:30.000Z"),
+        now: Date.parse("2026-07-08T10:00:00.000Z"),
+      })
+    );
+
+    expect(html).not.toContain("Refresh dashboard");
+    expect(html).not.toContain("data-card-refresh");
   });
 });

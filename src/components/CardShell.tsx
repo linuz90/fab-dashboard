@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { RefreshCw } from "lucide-react";
 import { cn } from "../lib/cn";
 
 export type FreshnessTone = "ok" | "stale" | "error";
@@ -16,12 +15,10 @@ interface CardShellProps {
     icon?: ReactNode;
     accent?: "blue" | "green" | "yellow" | "red" | "purple" | "pink" | "teal" | "muted";
   };
-  onRefresh?: () => void;
-  refreshing?: boolean;
   children: ReactNode;
 }
 
-export function CardShell({ id, title, freshness, visual, onRefresh, refreshing = false, children }: CardShellProps) {
+export function CardShell({ id, title, freshness, visual, children }: CardShellProps) {
   return (
     <section className="card-surface flex flex-col gap-[var(--card-gap)]" data-card-id={id} data-card-accent={visual?.accent}>
       <header className="flex items-baseline justify-between gap-3">
@@ -29,31 +26,14 @@ export function CardShell({ id, title, freshness, visual, onRefresh, refreshing 
           {visual?.icon && <span className="card-title-icon text-faint [&>svg]:size-3.5">{visual.icon}</span>}
           <span className="truncate">{title}</span>
         </h2>
-        {(freshness || onRefresh) && (
-          <span data-card-meta-actions className="flex max-w-[62%] shrink-0 items-center justify-end gap-1.5">
-            {freshness && (
-              <span data-card-meta data-tone={freshness.tone} className="flex min-w-0 items-center gap-1.5 truncate font-mono type-ui-xs text-faint">
-                {freshness.tone !== "ok" && (
-                  <span className={cn("size-1.5 shrink-0 rounded-full", freshness.tone === "stale" ? "bg-warning" : "bg-danger")} />
-                )}
-                <span className="truncate">{freshness.label}</span>
-              </span>
-            )}
-            {onRefresh && (
-              <button
-                type="button"
-                data-card-refresh
-                title={refreshing ? "Refreshing dashboard" : "Refresh dashboard"}
-                aria-label={refreshing ? "Refreshing dashboard" : "Refresh dashboard"}
-                aria-busy={refreshing}
-                aria-disabled={refreshing}
-                data-refreshing={refreshing ? "true" : undefined}
-                onClick={onRefresh}
-                className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border border-transparent bg-transparent text-faint transition-colors hover:bg-border/40 hover:text-fg focus-visible:bg-border/40 focus-visible:text-fg data-[refreshing=true]:cursor-progress"
-              >
-                <RefreshCw className={cn("size-3", refreshing && "motion-safe:animate-spin")} />
-              </button>
-            )}
+        {freshness && (
+          <span className="flex max-w-[62%] shrink-0 items-center justify-end gap-1.5">
+            <span data-card-meta data-tone={freshness.tone} className="flex min-w-0 items-center gap-1.5 truncate font-mono type-ui-xs text-faint">
+              {freshness.tone !== "ok" && (
+                <span className={cn("size-1.5 shrink-0 rounded-full", freshness.tone === "stale" ? "bg-warning" : "bg-danger")} />
+              )}
+              <span className="truncate">{freshness.label}</span>
+            </span>
           </span>
         )}
       </header>

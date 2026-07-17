@@ -51,7 +51,14 @@
 }
 
 :root[data-theme="e-ink"]
-  :is(.card-surface, .border-border, .border-header-border, .border-faint, .divide-border > :not([hidden]) ~ :not([hidden])) {
+  :is(
+    .card-surface,
+    .dashboard-settings-panel,
+    .border-border,
+    .border-header-border,
+    .border-faint,
+    .divide-border > :not([hidden]) ~ :not([hidden])
+  ) {
   border-style: dotted;
 }
 
@@ -169,6 +176,39 @@
   background: color-mix(in srgb, var(--color-canvas) 90%, transparent);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+
+/* E-reader interfaces replace whole regions instead of animating floating
+   glass panels. Match settings chrome to the theme's paper cards and keep all
+   modal state changes instantaneous to avoid implausible LCD-style motion. */
+:root[data-theme="e-ink"] .dashboard-settings-backdrop {
+  background: color-mix(in srgb, var(--color-canvas) 90%, transparent);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-settings-panel {
+  border-color: var(--card-border-color, var(--color-border));
+  border-radius: var(--card-radius);
+  background: var(--color-card);
+  box-shadow: var(--card-shadow);
+}
+
+:root[data-theme="e-ink"]
+  :is(
+    .dashboard-settings-backdrop,
+    .dashboard-settings-panel,
+    .dashboard-command-overlay,
+    .dashboard-command-dialog,
+    .dashboard-command-preview
+  ) {
+  animation: none;
+}
+
+:root[data-theme="e-ink"] .dashboard-settings-backdrop[data-state="closed"] {
+  /* Settings retains its closed DOM for focus cleanup; without an exit
+     animation, hide that retained frame immediately. */
+  visibility: hidden;
 }
 
 :root[data-theme="e-ink"] .dashboard-command-input-wrap,
