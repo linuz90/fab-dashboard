@@ -191,7 +191,7 @@ export function App() {
             {!resp ? null : resp.configError && resp.cards.length === 0 ? (
               <ErrorCard title="dashboard.json" message={resp.configError} />
             ) : resp.cards.length === 0 ? (
-              <EmptyDashboard />
+              tabs && activeTab ? <EmptyDashboardTab label={activeTab.label} /> : <EmptyDashboard />
             ) : (
               <>
                 {resp.configError && <div className="mb-[var(--layout-gap)]"><ErrorCard title="Config warning" message={resp.configError} /></div>}

@@ -49,13 +49,14 @@ export function DashboardTabs({
           aria-current={tab.id === activeTabId ? "page" : undefined}
           data-dashboard-tab-id={tab.id}
           className="dashboard-tab-link"
+          title={tab.label}
           onClick={(event) => {
             if (!shouldHandleNavigation(event)) return;
             event.preventDefault();
             onNavigate(tab.id);
           }}
         >
-          {tab.label}
+          <span className="dashboard-tab-label">{tab.label}</span>
         </a>
       ))}
     </nav>

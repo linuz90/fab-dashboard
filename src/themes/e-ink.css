@@ -161,6 +161,14 @@
   box-shadow: none;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  :root[data-theme="e-ink"] .dashboard-tab-link {
+    /* Theme chrome stays compact on desktop, but touch input still needs the
+       shared 40px target that the unlayered e-ink override would otherwise win. */
+    min-height: 2.5rem;
+  }
+}
+
 /* E-ink ordered dither: a tiny Bayer-ish pixel matrix fixed over the whole
    viewport. Text stays vector-sharp underneath; only the paper/card plane gets
    the display texture. Blend modes gate it per scheme with no media query:

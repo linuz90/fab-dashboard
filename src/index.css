@@ -379,6 +379,7 @@ body {
   .dashboard-tab-link {
     display: inline-flex;
     min-height: 1.875rem;
+    max-width: min(16rem, 100%);
     flex: none;
     align-items: center;
     justify-content: center;
@@ -396,6 +397,13 @@ body {
       color 120ms ease,
       background-color 120ms ease,
       border-color 120ms ease;
+  }
+
+  .dashboard-tab-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .dashboard-tab-link:hover {

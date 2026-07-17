@@ -139,4 +139,40 @@ describe("dashboard validation", () => {
     expect(response.header.widgets[0]?.label).toBe("global");
     expect(Object.keys(response.sources).sort()).toEqual(["global-source", "system-source", "today-source"]);
   });
+
+  test("keeps the last valid tabbed dashboard when new membership is invalid", async () => {
+    const root = await mkdtemp(join(tmpdir(), "fab-dashboard-tabs-last-good-"));
+    const paths = testPaths(root);
+
+    await writeJson(join(paths.localCardsDir, "demo-card", "card.json"), {
+      schemaVersion: 1,
+      type: "demo-card",
+      blocks: [{ type: "text", text: "Demo" }],
+    });
+    const validDashboard = {
+      schemaVersion: 1,
+      tabs: [
+        { id: "today", label: "Today" },
+        { id: "system", label: "System" },
+      ],
+      cards: [{ id: "tasks", type: "demo-card", title: "Tasks", tab: "today" }],
+    };
+    await writeJson(paths.dashboardJson, validDashboard);
+
+    const validResponse = await buildDashboardResponse(paths, createRuntime(paths));
+    expect(validResponse.configError).toBeNull();
+    expect(validResponse.cards[0]?.instance.tab).toBe("today");
+
+    await writeJson(paths.dashboardJson, {
+      ...validDashboard,
+      cards: [{ id: "tasks", type: "demo-card", title: "Tasks" }],
+    });
+
+    const fallbackResponse = await buildDashboardResponse(paths, createRuntime(paths));
+    expect(fallbackResponse.configError).toContain("must declare a tab");
+    expect(fallbackResponse.config.tabs?.map((tab) => tab.id)).toEqual(["today", "system"]);
+    expect(fallbackResponse.cards.map((card) => ({ id: card.instance.id, tab: card.instance.tab }))).toEqual([
+      { id: "tasks", tab: "today" },
+    ]);
+  });
 });
