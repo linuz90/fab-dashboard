@@ -377,6 +377,7 @@ function RowsBlock({ block, data }: { block: Extract<Block, { type: "rows" }>; d
         const tone = row.valueTonePath ? resolvePath(data, row.valueTonePath) : row.tonePath ? resolvePath(data, row.tonePath) : null;
         const progress = numericPathValue(data, row.progressPath);
         const progressPct = progress === null ? null : (progress / (row.progressMax ?? 100)) * 100;
+        const progressWarning = tone == null ? progressPct !== null && progressPct > 85 : tone === "warning" || tone === "danger";
         const sparkline = row.sparklinePath ? asNumberArray(resolvePath(data, row.sparklinePath)) : [];
         const value = row.value ?? (row.valuePath ? asString(resolvePath(data, row.valuePath)) : "");
         const hint = row.hint ?? (row.hintPath ? asString(resolvePath(data, row.hintPath)) : "");
@@ -389,7 +390,7 @@ function RowsBlock({ block, data }: { block: Extract<Block, { type: "rows" }>; d
             )}
             {progressPct !== null && (
               <span className="w-10 shrink-0 sm:w-16">
-                <ProgressBar pct={progressPct} fillClass={progressPct > 85 ? "bg-warning/90" : "bg-accent/80"} />
+                <ProgressBar pct={progressPct} fillClass={progressWarning ? "bg-warning/90" : "bg-accent/80"} />
               </span>
             )}
             {value && <ValueText value={value} tone={tone} variant={row.valueVariant} />}
