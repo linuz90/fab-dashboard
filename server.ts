@@ -33,6 +33,7 @@ const DIST_DIR = join(paths.repoRoot, "dist");
 const NO_FALLBACK_STATIC_PATHS = new Set([
   "/manifest.webmanifest",
   "/sw.js",
+  // Stale icon.svg requests should 404 instead of receiving the app shell.
   "/icon.svg",
   "/apple-touch-icon.png",
   "/favicon.ico",

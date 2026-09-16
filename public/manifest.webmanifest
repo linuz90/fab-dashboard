@@ -7,7 +7,7 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
-  "background_color": "#050608",
+  "background_color": "#3c424b",
   "theme_color": "#0d1024",
   "categories": ["productivity", "utilities"],
   "icons": [
@@ -21,7 +21,7 @@
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
