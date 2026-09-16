@@ -1,7 +1,8 @@
-const CACHE_NAME = "fab-dashboard-v5";
+const CACHE_NAME = "fab-dashboard-v6";
 const APP_SHELL = [
   "/",
-  "/favicon.ico",
+  "/favicon.ico?v=42d274a5d726",
+  "/favicon-32.png?v=e94fc5d1518a",
   "/manifest.webmanifest",
   "/icons/apple-touch-icon.png",
   "/icons/icon-192.png",
@@ -87,7 +88,8 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.startsWith("/assets/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/favicon.ico"
+    url.pathname === "/favicon.ico" ||
+    url.pathname === "/favicon-32.png"
   ) {
     event.respondWith(cacheFirst(request));
   }
