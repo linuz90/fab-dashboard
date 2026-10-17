@@ -25,8 +25,6 @@ bun run cli service print <macos|systemd>
 
 The default app home is `~/.config/fab-dashboard`; state/cache defaults to `~/.local/state/fab-dashboard`. Override with `FAB_DASHBOARD_HOME` and `FAB_DASHBOARD_STATE_HOME` for development and tests.
 
-`CLAUDE.md` should remain a symlink to this file so Codex and Claude read the same repo instructions.
-
 ## Managed Worktrees
 
 Codex and Claude worktrees share this repo contract. Fresh managed worktrees run `./workspace-setup.sh init`, which reapplies narrow `.worktreeinclude` files and installs dependencies.
